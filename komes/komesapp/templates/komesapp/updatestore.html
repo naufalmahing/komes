@@ -1,0 +1,41 @@
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<!-- add permission for creating store (only for those who don't already have a store) -->
+<form method="post" action="{% url 'updatestore' store.id %}">
+    {% csrf_token %}
+    <table>
+    <tr>
+        <td>{{ form.name.label_tag }}</td>
+        <td>{{ form.name }}</td>
+    </tr>
+    <tr>
+        <td>{{ form.description.label_tag }}</td>
+        <td>{{ form.description }}</td>
+    </tr>
+    </table>
+    <input type="submit" value="Update store">
+</form>
+
+<a href="{% url 'addstoreproduct' %}">Add product</a>
+
+<!-- update products in store -->
+{% for product in store.product_set.all %}
+    <div>
+        <img src="{{product.photo.url}}" alt="" height="200" width="150">
+        <br>
+        {{product.name}}
+        <br>
+        {{product.description}}
+        <br>
+        {{product.price.amount}}
+        <br>
+        <a href="{% url 'updatestoreproduct' product.id %}">Update product</a>
+        <a href="{% url 'deletestoreproduct' product.id %}">Delete product</a>
+    </div>
+{% endfor %}
+
+<br>
+<a href="{% url 'deletestore' store.id %}">Delete</a>

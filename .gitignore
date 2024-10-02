@@ -1,0 +1,9 @@
+env/
+test_api/
+
+**/media/
+**/__pycache__/
+**/migrations/
+
+**.sqlite3
+tes.html

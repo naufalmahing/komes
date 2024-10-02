@@ -1,0 +1,32 @@
+{% extends 'komesapp/base.html'%}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<!-- check if owner, if its owner then allow to update store -->
+{% if user.id == store.owner.id %}
+    <a href="{% url 'updatestore' store.id %}">Update store</a>
+{% endif %}
+
+<div>
+    {{store.name}}
+    <br>
+    {{store.description}}
+    <br>
+    {% for product in store.product_set.all %}
+        <img src="{{product.photo.url}}" alt="" height="200" width="150">
+        <br>
+        {{product.name}}
+        <br>
+        {{product.price.amount}}
+        <form action="{% url 'addorder' product.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Add to Order">
+        </form>
+    {% endfor %}
+</div>
+
+{% endblock %}

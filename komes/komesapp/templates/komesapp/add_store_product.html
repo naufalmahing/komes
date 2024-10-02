@@ -1,0 +1,25 @@
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+{{msg}}
+<form method="post" action="{% url 'addstoreproduct' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>{{ form.name.label_tag }}</td>
+            <td>{{ form.name }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.description.label_tag }}</td>
+            <td>{{ form.description }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.photo.label_tag }}</td>
+            <td>{{ form.photo }}</td>
+        </tr>
+    </table>
+    <input type="submit" value="Add product">
+
+</form>

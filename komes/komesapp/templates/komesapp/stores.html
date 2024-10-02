@@ -1,0 +1,27 @@
+{% extends 'komesapp/base.html'%}
+
+
+{% block content %}
+
+Here are your stores sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<!-- search bar (stores) 
+display a list of stores
+-->
+
+<div>
+    <ul>
+        {% for store in stores %}
+            <li>
+                <a href="{% url 'storedetail' store.id %}">{{store.name}} </a>
+                
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

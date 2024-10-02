@@ -1,0 +1,4 @@
+<form method="post" action="{% url 'clearorder' %}">{% csrf_token %}
+    <p>Are you sure you want to clear your order?</p>
+    <input type="submit" value="Confirm">
+</form>

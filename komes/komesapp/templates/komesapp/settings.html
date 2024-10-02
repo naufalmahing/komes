@@ -1,0 +1,20 @@
+{% extends 'komesapp/base.html'%}
+
+{% block content %}
+
+Here are your settings sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<div>
+
+    {% if has_store is False %}
+    <a href="{% url 'createstore' %}">Create store</a>
+    {% else %}
+    <a href="{% url 'storedetail' user.store.id %}">Store detail here</a>
+    {% endif %}
+    
+</div>
+{% endblock %}

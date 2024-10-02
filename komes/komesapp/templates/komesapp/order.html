@@ -1,0 +1,40 @@
+{% extends 'komesapp/base.html'%}
+
+
+{% block content %}
+
+Here are your order sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<div>
+    {% if order.products.all %}
+    <a href="{% url 'clearorder' %}">Clear order</a>
+    {% else %}
+    Order empty
+    {% endif %}
+    <ul>
+        {% for product in order.products.all %}
+        <li>
+            <img src="{{product.photo.url}}" alt="" height="200" width="150">
+            <br>
+            {{product.name}}
+            <br>
+            {{product.price}}
+            <!-- delete product -->
+            <form action="{% url 'orderdeleteproduct' product.id %}" method="post">{% csrf_token %}
+                <input type="submit" value="Delete">
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if order.products.all %}
+    <a href="{% url 'buy' order.id %}">Buy</a>
+    {% endif %}
+    
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'komesapp/base.html'%}
+
+
+{% block content %}
+
+Here are your order sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<div>
+    {% if order.products.all %}
+    <a href="{% url 'clearorder' %}">Clear order</a>
+    {% else %}
+    Order empty
+    {% endif %}
+
+    <!-- total payment -->
+    <table>
+        <tr>
+            <td>Product</td>
+            <td>Price</td>
+        </tr>
+        {% for product in order.products.all %}
+        <tr>
+            <td>{{product.name}}</td>
+            <td>{{product.price}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Total payment: </td>
+            <td>{{total_payment}}</td>
+        </tr>
+    </table>
+    
+
+    <!-- form -->
+    <form action="#" method="post">
+        {% csrf_token %}
+        <!-- choose payment method -->
+
+
+        <!-- choose shipment method -->
+
+
+        <!-- address input -->
+
+        <input type="submit" value="Submit">
+    </form>
+    
+</div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+{{form.errors}}
+<form method="post" action="{% url 'updatestoreproductimage' product_id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td></td>
+            <td>
+                <img id="imagePreview" src={{photo_url}} alt="image preview">
+            </td>
+        </tr>
+        <tr>
+            <td>{{form.photo.label_tag}}</td>
+            <td>
+                {{form.photo}}
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Update image">
+
+</form>
+
+<script>
+    const imageInput = document.getElementById('id_photo');
+    const imagePreview = document.getElementById('imagePreview');
+
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

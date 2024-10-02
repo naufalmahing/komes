@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Preview</title>
+    <style>
+        .preview-container {
+            margin-top: 20px;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Upload and Preview Image</h2>
+
+    <form id="imageForm">
+        <label for="imageInput">Choose an image:</label>
+        <input type="file" id="imageInput" accept="image/*" value="{{photo.url}}">
+        <div class="preview-container">
+            <h3>Image Preview:</h3>
+            <img id="imagePreview" alt="Image Preview">
+        </div>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+
+    <div>run this again hha</div>
+
+</body>
+</html>

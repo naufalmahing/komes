@@ -1,0 +1,59 @@
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+{{msg}}
+
+<!-- permission to disable for owner to buy his own products -->
+
+<img src="{{form.photo.url}}" alt="">
+<form method="post" action="{% url 'updatestoreproduct' product_id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>{{ form.name.label_tag }}</td>
+            <td>{{ form.name }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.description.label_tag }}</td>
+            <td>{{ form.description }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.price.label_tag }}</td>
+            <td>{{ form.price }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.photo.label_tag }}</td>
+            <td>
+                <img id="imagePreview" src={{photo.url}} alt="image preview">
+                
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="{% url 'updatestoreproductimage' product_id %}">Change image</a>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Update product">
+
+</form>
+
+<script>
+    const imageInput = document.getElementById('id_photo');
+    const imagePreview = document.getElementById('imagePreview');
+
+    imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

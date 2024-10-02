@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komesapp</title>
+</head>
+<body>
+    {% include 'komesapp/messages.html' %}
+    {% if user.is_authenticated %}
+    <p>{{ user.username }}</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <input type="submit" value="logout">
+    </form>
+
+    <!-- header -->
+    <a href="{% url 'index' %}">Products</a>
+    <a href="{% url 'stores' %}">Stores</a>
+    <a href="{% url 'order' %}">Orders</a>
+    <a href="{% url 'settings' %}">Settings</a>
+    <div>
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <script>
+        const msgElement = document.getElementById('msg')
+        if (msgElement) {
+            setTimeout(function() {
+                if (msgElement.textContent.length > 0) {
+                    msgElement.remove()
+                }
+            }, 2000)
+        }
+
+    </script>
+</body>
+</html>

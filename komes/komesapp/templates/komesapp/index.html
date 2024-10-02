@@ -1,0 +1,28 @@
+{% extends 'komesapp/base.html' %}
+
+{% block content %}
+
+Here are your products sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<!-- search bar (products) 
+display a list of products
+-->
+
+<div>
+    <ul>
+        {% for product in products %}
+            <li>
+                {{product.name}} 
+                {% for tag in product.tag_set.all %}
+                    - {{tag}}
+                {% endfor %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
