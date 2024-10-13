@@ -1,0 +1,17 @@
+{% extends 'komesapp/base.html'%}
+
+{% block content %}
+    <a href="{% url 'createaddress' %}">Add</a>
+    <ul>
+        {% for address in addresses %}
+            <li>
+                {{address.name}}
+                {{address.address}}
+                <a href="{% url 'updateaddress' address.id%}">Update</a>
+                <form action="{% url 'deleteaddress' address.id %}" method="post"> {% csrf_token %}
+                    <input type="submit" value="Delete">
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

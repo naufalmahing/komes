@@ -3,6 +3,21 @@ from django.contrib.auth.models import User
 
 from djmoney.models.fields import MoneyField
 
+class Address(models.Model):
+    name=models.CharField(max_length=300)
+    city=models.CharField(max_length=100)
+    subdistrict=models.CharField(max_length=150)
+    ward=models.CharField(max_length=200)
+    address=models.TextField()
+    zipcode=models.CharField(max_length=20)
+
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    
+
+class LatestAddress(models.Model):
+    user=models.OneToOneField(User, on_delete=models.CASCADE)
+    address=models.OneToOneField(Address, on_delete=models.CASCADE)
+    
 class Store(models.Model):
     name=models.CharField(max_length=150)
     description=models.TextField(null=True)

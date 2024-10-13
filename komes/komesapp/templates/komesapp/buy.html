@@ -1,5 +1,12 @@
 {% extends 'komesapp/base.html'%}
 
+{% block header %}
+
+<script type="text/javascript"
+src="https://app.sandbox.midtrans.com/snap/snap.js"
+data-client-key="{{ client_key }}"></script>
+
+{% endblock %}
 
 {% block content %}
 
@@ -36,8 +43,8 @@ Here are your order sir
     
 
     <!-- form -->
-    <form action="#" method="post">
-        {% csrf_token %}
+    <!-- <form action="#" method="post">
+        {% csrf_token %} -->
         <!-- choose payment method -->
 
 
@@ -46,9 +53,32 @@ Here are your order sir
 
         <!-- address input -->
 
-        <input type="submit" value="Submit">
-    </form>
-    
+        <!-- <input type="submit" value="Submit">
+    </form> -->
+
+    <!-- create a dropdown button with list of available prices and their courier name
+    with selected price update total price -->
+
+    <button id="pay-button">Pay</button>
+
+    <!-- midtrans payment form -->
+    <div id="snap-container"></div>
 </div>
 
+{% endblock %}
+
+{% block script %}
+<script>
+    console.log('this is script')
+    // For example trigger on button clicked, or any time you need
+    var payButton = document.getElementById('pay-button');
+    payButton.addEventListener('click', function () {
+        // Trigger snap popup. @TODO: Replace TRANSACTION_TOKEN_HERE with your transaction token.
+        // Also, use the embedId that you defined in the div above, here.
+        console.log('{{snap_token}}')
+        window.snap.embed('{{snap_token}}', {
+            embedId: 'snap-container'
+        });
+    });
+</script>
 {% endblock %}

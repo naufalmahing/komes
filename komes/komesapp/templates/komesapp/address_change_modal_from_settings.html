@@ -1,0 +1,64 @@
+{% extends 'komesapp/settings.html' %}
+
+{% load static %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'komesapp/style.css' %}">
+{% endblock %}
+
+{% block popup1 %}
+<h1>address change modal</h1>
+
+<!-- <a href="{% url 'createaddress' %}">Add</a> -->
+<!-- create address button -->
+<!-- <button id="create-address-button">Add address</button> -->
+<a href="{% url 'settingscreateaddress' %}">Add address</a>
+
+<div id="create-address-modal-container"></div>
+
+<div id="delete-address-confirmation-container"></div>
+
+<ul>
+    {% for addr in addresses %}
+            <div id="{{addr.id}}" class="address-option-container {% if addr.id == address.id %} highlight {% endif %}">
+                <li>
+                    {{addr.name}} <br>
+                    {{addr.address}} <br>
+                    <a href="{% url 'updateaddress' addr.id%}">Update</a>
+                    <a href="{% url 'deleteaddress' addr.id%}" id="delete-address-button">Delete</a>
+
+                </li>
+                
+            </div>
+    {% endfor %}
+</ul>
+
+<form action="{% url 'chooselatestaddress' address.id %}" method="post" id="choose-address-form">
+    {% csrf_token %}
+    <input type="hidden" name="redirect_to" id="change-address-redirect-url" value="{% url 'settings' %}">
+    <input type="submit" value="Save">
+</form>
+
+<!-- close modal button -->
+<!-- <button id="change-address-modal-close-button">Close</button> -->
+<a href="{% url 'settings' %}">Close change modal</a>
+
+{% endblock %}
+
+
+{% block script %}
+<script src="{% static 'komesapp/addressmodal v.1.js' %}"></script>
+{% endblock %}
+
+<!-- problems
+closing the modal
+saving data from modal
+
+closing the modal:
+remove html elements supplied
+get element id with js and remove it
+
+saving data from modal:
+save input id from div that last clicked by user
+when saved use id to update latestaddress
+-->

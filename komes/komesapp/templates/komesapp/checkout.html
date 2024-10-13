@@ -1,0 +1,98 @@
+{% extends 'komesapp/base.html' %}
+
+{% load static %}
+
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'komesapp/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- base url for redirecting url -->
+<input type="hidden" id="base-url" value="{{request.path}}">
+
+
+Here are your order sir
+
+{% if user.is_authenticated %}
+{{ user.username }}
+{% endif %}
+
+<div>
+    <!-- total payment -->
+    <table>
+        <tr>
+            <td>Product</td>
+            <td>Price</td>
+        </tr>
+        {% for product in order.products.all %}
+        <tr>
+            <td>{{product.name}}</td>
+            <td>{{product.price}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Total payment: </td>
+            <td>{{order.get_total_payment}}</td>
+        </tr>
+    </table>
+
+    <!-- <a href="{% url 'address' %}">Change address</a> -->
+    
+    <div>
+        <h3>selected address</h3>
+        {{address.name}} <br>
+        {{address.city}} <br>
+        {{address.address}} <br>
+    </div>
+
+    <div>
+        <h3>store address</h3>
+        {{store.address.city}} <br>
+        {{store.address.address}} <br>
+    </div>
+
+
+    <!-- <button id="change-address-button">Change Address</button> -->
+     <a href="{% url 'orderaddress' %}">Change address</a>
+    
+    <div id="change-address-modal-container"></div>
+
+    <!-- shipment form -->
+    <form action="{% url 'checkout' order.id %}" method="post">
+        <!-- {% csrf_token %} -->
+        {{ shipment_form }}
+
+        <!-- choose shipment method 
+        create a dropdown button with list of available prices and their courier name with selected price update total price 
+        -->
+        this is shipment dropdown
+
+
+        <input type="submit" value="Checkout">
+    </form>
+
+    <!-- shipment options 
+    get all shipment from selected address in view 
+    {element['courier_name']: 
+    'courier_service_name': element['courier_service_name'], 
+    'duration': element['duration'], 
+    'price': element['price']
+    for element in res['couriers_api']['pricing']}
+    -->
+
+    
+
+    <table>
+        <tr>Total payment: </tr>
+        <tr>{{ total_payment + courier_rate }}</tr>
+    </table>
+</div>
+
+<!-- <input type="hidden" id="change-address-url" value="{% url 'address' %}"> -->
+{% endblock %}
+
+<!-- {% block script %}
+<script src="{% static 'komesapp/addressmodal.js' %}"></script>
+
+{% endblock %} -->

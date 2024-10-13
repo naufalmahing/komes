@@ -3,9 +3,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Komesapp</title>
+    {% block header %}
+    {% endblock %}
 </head>
 <body>
     {% include 'komesapp/messages.html' %}
+    
     {% if user.is_authenticated %}
     <p>{{ user.username }}</p>
     {% else %}
@@ -23,6 +26,14 @@
     <a href="{% url 'order' %}">Orders</a>
     <a href="{% url 'settings' %}">Settings</a>
     <div>
+        <div>
+            {% block popup1 %}
+                <div>
+                    {% block popup2 %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
         {% block content %}
         {% endblock content %}
     </div>
@@ -38,5 +49,7 @@
         }
 
     </script>
+
+    {% block script %}{% endblock %}
 </body>
 </html>

@@ -1,6 +1,14 @@
 {% extends 'komesapp/base.html'%}
 
+{% load static %}
+
+{% block header %}
+<link rel="stylesheet" href="{% static 'komesapp/style.css' %}">
+{% endblock %}
+
 {% block content %}
+<!-- base url for redirecting url -->
+<input type="hidden" id="base-url" value="{{request.path}}">
 
 Here are your settings sir
 
@@ -16,5 +24,28 @@ Here are your settings sir
     <a href="{% url 'storedetail' user.store.id %}">Store detail here</a>
     {% endif %}
     
+    <!-- <a href="{% url 'address' %}">Addresses</a>
+      -->
+    <div>
+        <h3>selected address</h3>
+        {{address.name}} <br>
+        {{address.city}} <br>
+        {{address.address}} <br>
+    </div>
+    <!-- <button id="change-address-button">Change Address</button> -->
+    <a href="{% url 'settingsaddress' %}">Change address</a>
+
 </div>
+
+<!-- add js to inject html to a div -->
+<div id="change-address-modal-container"></div>
+
+
+
+<input type="hidden" id="change-address-url" value="{% url 'address' %}">
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'komesapp/addressmodal.js' %}"></script>
+
 {% endblock %}

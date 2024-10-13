@@ -1,0 +1,20 @@
+{% extends 'komesapp/checkout.html' %}
+
+{% block popup2 %}
+<h1>add address modal</h1>
+
+
+<form action="{% url 'createaddress' %}" method="post" >
+    {% csrf_token %}
+    <table>
+        {{address_form.as_table}}
+    </table>
+    <input type="hidden" name="redirect_to" id="create-address-redirect-url" value="{% url 'checkout' order.id%}">
+    <input type="submit" value="Add address">
+</form>
+
+<!-- close create address modal button -->
+<!-- <button id="create-address-modal-close-button">Close create address modal</button> -->
+<a href="{% url 'orderaddress' %}">Close create address modal</a>
+
+{% endblock %}
