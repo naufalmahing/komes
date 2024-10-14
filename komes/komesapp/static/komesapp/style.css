@@ -1,3 +1,45 @@
 .highlight {
     background-color: gray;
 }
+
+#parent {
+    position: relative; /* This makes the child position relative to the parent */
+    width: 300px;
+    height: 100px;
+    background-color: lightblue;
+    border: 1px solid #000;
+    margin-top: 50px;
+}
+
+/* Style for the dynamically created child */
+.child {
+    position: absolute; /* Positioned relative to the parent */
+    top: 100px; /* Aligns at the top of the parent */
+    left: 0; /* Aligns at the left of the parent */
+    width: 100%;
+    height: 100%;
+    /* background-color: rgba(255, 0, 0, 0.5); */
+
+    /* visibility: hidden; */
+    display: none;
+}
+
+div:focus {
+    background-color: Aqua;
+}
+
+div:blur {
+    background-color: aliceblue;
+}
+
+.overlay {
+    background-color: aliceblue;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 50%;
+
+    visibility: hidden;
+}

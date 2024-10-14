@@ -74,25 +74,111 @@ Here are your order sir
 
     <!-- shipment options 
     get all shipment from selected address in view 
-    {element['courier_name']: 
+    {element['courier_name']+element['courier_service_name']: 
+    'courier_name': element['courier_name'],
     'courier_service_name': element['courier_service_name'], 
     'duration': element['duration'], 
     'price': element['price']
     for element in res['couriers_api']['pricing']}
     -->
+    <select name="test" id="">
+        <option value="">
+            this is 1 <br>
+            <div>
+                this is content
+            </div>
+            <div>
+                this is another line
+            </div>
+        </option>
+        <option value="">
+            this is 1 <br>
+            <div>
+                this is content
+            </div>
+            <div>
+                this is another line
+            </div>
+        </option>
+        <option value="">
+            this is 1 <br>
+            <div>
+                this is content
+            </div>
+            <div>
+                this is another line
+            </div>
+        </option>
+        <option value="">
+            this is 1 <br>
+            <div>
+                this is content
+            </div>
+            <div>
+                this is another line
+            </div>
+        </option>
+    </select>
 
+    <div id="parent" tabindex="0" >
+        <div id="parent-content">
+            GRAB Same Day <br>
+            4 - 8 Hours <br>
+            19000
+        </div>
+
+        <div class="overlay" style="visibility:hidden"></div>
+
+        <div class="child">
+            {% for shipment in shipments %}
+            <div id="{{forloop.counter}}" class="courier-option">
+                {{shipment.courier_name}}
+                {{shipment.courier_service_name}} <br>
+                {{shipment.duration}} <br>
+                {{shipment.price}}
+            </div>
+            <hr>
+        {% endfor %}
+        </div>
+    </div>
+
+    <!-- <div>
+        <ul>
+            {% for shipment in shipments %}
+            <div>
+                {{shipment.courier_name}}
+                {{shipment.courier_service_name}} <br>
+                {{shipment.duration}} <br>
+                {{shipment.price}}
+            </div>
+            <hr>
+            {% endfor %}
+        </ul>
+    </div> -->
     
 
     <table>
         <tr>Total payment: </tr>
-        <tr>{{ total_payment + courier_rate }}</tr>
+        <!-- <tr></tr> -->
+        <tr>9000000</tr>
     </table>
 </div>
+
+<form action="{% url 'buy' order.id %}" method="post" id="pay-form">
+    {% csrf_token %} 
+    <input type="hidden" name="address" value="" id="address-input">
+    <input type="hidden" name="courier" value="" id="courier-input">
+    <input type="hidden" name="courier-fee">
+    <input type="hidden" name="courier-name">
+    <input type="hidden" name="courier-type">
+    <input type="hidden" name="delivery-type">
+    <input type="submit" value="Pay">
+</form>
 
 <!-- <input type="hidden" id="change-address-url" value="{% url 'address' %}"> -->
 {% endblock %}
 
-<!-- {% block script %}
-<script src="{% static 'komesapp/addressmodal.js' %}"></script>
+{% block script %}
+<script src="{% static 'komesapp/shipmentoption.js' %}"></script>
 
-{% endblock %} -->
+{% endblock %}

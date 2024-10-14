@@ -25,6 +25,7 @@ class Store(models.Model):
         User,
         on_delete=models.CASCADE,
     )
+    address=models.OneToOneField(Address, on_delete=models.CASCADE, default=Address(name=name, city='bandung', subdistrict='griya bandung', ward='selatan timur', address='jl ujung hari no 99', zipcode='79829'))
 
     def __str__(self):
         return str(self.id) + '-' + self.name
@@ -53,13 +54,18 @@ class Order(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE,null=False)
     active=models.BooleanField(default=True)
 
+    biteship_order_id=models.CharField(max_length=30, null=True)
+    courier_fee=MoneyField(max_digits=19, decimal_places=4, default_currency='IDR', default=0, null=True)
+
     def __str__(self):
         return str(self.id)
     
     def get_total_payment(self):
         total = sum([product.price for product in self.products.all()])
+        if self.courier_fee:
+            total += self.courier_fee
         return total
-
+    
 class OrderProduct(models.Model):
     product=models.ForeignKey(Product, on_delete=models.CASCADE)
     order=models.ForeignKey(Order, on_delete=models.CASCADE)

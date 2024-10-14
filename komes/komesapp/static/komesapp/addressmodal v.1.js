@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Highlight box animation and get id for choosing latest address
     // Get all div elements with the class 'box'
     const divs = document.querySelectorAll('.address-option-container');
+    console.log(divs)
 
+    const addressInput = document.getElementById('address-input')
     // Add click event listener to each div
     divs.forEach(div => {
         div.addEventListener('click', () => {
@@ -28,6 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Add highlight to the clicked div
             div.classList.add('highlight');
+
+            // Update address input
+            addressInput.value = div.id
         });
     });
 })

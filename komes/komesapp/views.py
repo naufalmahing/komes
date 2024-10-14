@@ -362,8 +362,96 @@ class BuyView(LoginRequiredMixin, View):
             'client_key': CLIENT_KEY
         })
 
-    def post(self, request, *args, **kwags):
-        pass
+    def post(self, request, *args, **kwargs):
+        order = Order.objects.get(id=kwargs['order_id'])
+        order.courier_fee = request.POST['courier-fee']
+        # create a biteship order object
+
+        url = "https://api.biteship.com/v1/orders"
+
+        user = User.objects.get(id=request.user.id)
+        # get store owner, order -> product -> store -> owner
+        store_owner = order.products.first().store.owner
+
+        # list all items
+        items = [
+            {
+                'name': product.name,
+                'value': product.price, 
+                'quantity': 1,
+                'weight': 100 # just dummy
+            } 
+        for product in order.products]
+        
+        payload = json.dumps({
+        "origin_contact_name": store_owner.first_name + ' ' + store_owner.last_name,
+        "origin_contact_phone": "088888888888",
+        "origin_address": store_owner.store.address.address,
+        "origin_note": "",
+        "origin_postal_code": store_owner.store.address.zipcode,
+        "destination_contact_name": user.first_name + ' ' + user.last_name,
+        "destination_contact_phone": "088888888888",
+        "destination_address": user.latestaddress.address.address,
+        "destination_postal_code": user.latestaddress.address.zipcode,
+        "destination_note": "",
+        "courier_company": request.POST['courier-name'],
+        "courier_type": request.POST['courier-type'],
+        "delivery_type": request.POST['delivery-type'],
+        "order_note": "Please be careful",
+        "metadata": {},
+        "items": items
+        })
+
+        # payload = json.dumps({
+        # "shipper_contact_name": "Amir",
+        # "shipper_contact_phone": "088888888888",
+        # "shipper_contact_email": "biteship@test.com",
+        # "shipper_organization": "Biteship Org Test",
+        # "origin_contact_name": "Amir",
+        # "origin_contact_phone": "088888888888",
+        # "origin_address": "Plaza Senayan, Jalan Asia Afrik...",
+        # "origin_note": "Deket pintu masuk STC",
+        # "origin_postal_code": 12440,
+        # "destination_contact_name": "John Doe",
+        # "destination_contact_phone": "088888888888",
+        # "destination_contact_email": "jon@test.com",
+        # "destination_address": "Lebak Bulus MRT...",
+        # "destination_postal_code": 12950,
+        # "destination_note": "Near the gas station",
+        # "courier_company": "jne",
+        # "courier_type": "reg",
+        # "courier_insurance": 500000,
+        # "delivery_type": "now",
+        # "order_note": "Please be careful",
+        # "metadata": {},
+        # "items": [
+        #     {
+        #     "name": "Black L",
+        #     "description": "White Shirt",
+        #     "category": "fashion",
+        #     "value": 165000,
+        #     "quantity": 1,
+        #     "height": 10,
+        #     "length": 10,
+        #     "weight": 200,
+        #     "width": 10
+        #     }
+        # ]
+        # })
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzIGFwaSIsInVzZXJJZCI6IjY2ZjhkNzMwZDZjNjQ3MDAxMjA1MGQxMSIsImlhdCI6MTcyNzU4NDIzMH0.eQlCI2RFeMiUoHzwO5_DZ7aajUuxDbIIk_tdkDrg8mA'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        print(response.text)
+
+        return HttpResponseRedirect(reverse('buy'), kwargs={
+            'order_id': kwargs['order_id']
+        })
+
 
 class LatestAddressView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
@@ -718,6 +806,39 @@ class CheckoutView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
     redirect_field_name = "redirect_to"
 
+    def get_rate(self):
+        url = 'https://my-json-server.typicode.com/naufalmahing/fakejsonserver/couriers_api'
+
+        payload = json.dumps({
+        "origin_latitude": -6.3031123,
+        "origin_longitude": 106.7794934999,
+        "destination_latitude": -6.2441792,
+        "destination_longitude": 106.783529,
+        "couriers": "grab,jne,tiki",
+        "items": [
+            {
+            "name": "Shoes",
+            "description": "Black colored size 45",
+            "value": 199000,
+            "length": 30,
+            "width": 15,
+            "height": 20,
+            "weight": 200,
+            "quantity": 2
+            }
+        ]
+        })
+        headers = {
+        'Content-Type': 'application/json',
+        'Authorization': BITESHIP_TOKEN
+        }
+
+        # response = requests.request("POST", url, headers=headers, data=payload)
+
+        response = requests.request('GET', url)
+
+        response.json()
+
     def get(self, request, *args, **kwargs):
         """get origin and address input
         then get courier input
@@ -754,7 +875,26 @@ class CheckoutView(LoginRequiredMixin, View):
 
         response = requests.request('GET', url)
 
+        # print(response)
         res = response.json()
+        
+        # res = self.get_rate()
+
+        # print(res)
+
+        # print('this is key: pricing')
+        # print(res['pricing'])
+        d = [
+            {
+                'courier_name': element['courier_name'],
+                'courier_service_name': element['courier_service_name'], 
+                'duration': element['duration'], 
+                'price': element['price']
+            } for element in res['pricing']
+        ]
+        
+        # print('this is d')
+        # print(d)
         
         # access pricings from response
         # print(res['pricing'])
@@ -767,11 +907,23 @@ class CheckoutView(LoginRequiredMixin, View):
         return render(request, 'komesapp/checkout.html', {
             'order': order,
             'shipment_form': shipment_form,
-            'address': address
+            'address': address,
+            'shipments': d
         })
     
     def post(self, request, *args, **kwargs):
-        # logic
+        # send message if no address
+        if request.POST['address'] == '':
+            messages.error(request, 'Use an address')
+            return HttpResponseRedirect(reverse('checkout'), kwargs={
+                'order_id': kwargs['order_id']
+            })
+        elif request.POST['courier'] == '':
+            messages.error(request, 'Choose a courier')
+            return HttpResponseRedirect(reverse('checkout'), kwargs={
+                'order_id': kwargs['order_id']
+            })
+        
         return HttpResponseRedirect(reverse('buy'), kwargs={
             'order_id': kwargs['order_id']
         })
