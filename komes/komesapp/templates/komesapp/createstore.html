@@ -1,3 +1,6 @@
+{% extends 'komesapp/base.html' %}
+
+{% block content %}
 
 {% if user.is_authenticated %}
 {{ user.username }}
@@ -7,14 +10,11 @@
 <form method="post" action="{% url 'createstore' %}">
     {% csrf_token %}
     <table>
-    <tr>
-        <td>{{ form.name.label_tag }}</td>
-        <td>{{ form.name }}</td>
-    </tr>
-    <tr>
-        <td>{{ form.description.label_tag }}</td>
-        <td>{{ form.description }}</td>
-    </tr>
+        {{form.as_table}}
     </table>
     <input type="submit" value="Create store">
 </form>
+
+{% endblock %}
+
+

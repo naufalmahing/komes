@@ -42,34 +42,6 @@ function createChildAtSamePosition() {
     })
 
 
-    
-    // options.forEach(option => {
-    //     option.addEventListener('click', (e) => {
-    //         e.stopPropagation()
-    //         console.log(option.id)
-            
-    //         options.forEach(option => option.classList.remove('highlight'))
-    //         option.classList.add('highlight')
-
-    //         courierInput.value = option.id
-            
-    //         parent.firstElementChild.innerHTML = option.innerHTML
-
-    //         console.log(child[0].style.display)
-    //         console.log(overlay[0].style.visibility)
-    //         // idk it's not working
-    //         child[0].style.display = 'none'
-    //         overlay[0].style.visibility = 'hidden'
-
-    //         console.log('after')
-            
-    //         console.log(child[0].style.display)
-    //         console.log(overlay[0].style.visibility)
-
-    //         parentNotClicked = true
-        // })
-    // });
-
 }
 
 // Call the function to create the new child element
@@ -84,13 +56,15 @@ Every time there's a change in courier update hidden value in pay form
 const options = document.querySelectorAll('.courier-option')
 console.log(options)
 
-const courierInput = document.getElementById('courier-input')
+// const courierInput = document.getElementById('courier-input')
+
+const payForm = document.getElementById('pay-form')
 
 function updateCourier() {
     const options = document.querySelectorAll('.courier-option')
     console.log(options)
 
-    const courierInput = document.getElementById('courier-input')
+    // const courierInput = document.getElementById('courier-input')
     
     options.forEach(option => {
         option.addEventListener('click', (evt) => {
@@ -101,22 +75,41 @@ function updateCourier() {
             options.forEach(option => option.classList.remove('highlight'))
             option.classList.add('highlight')
 
-            courierInput.value = option.id
+            // courierInput.value = option.id
             
             parent.firstElementChild.innerHTML = option.innerHTML
 
-            console.log(child[0].style.display)
-            console.log(overlay[0].style.visibility)
-            // idk it's not working
+            // console.log(child[0].style.display)
+            // console.log(overlay[0].style.visibility)
+
+            // idk it's not working, it's working now
             child[0].style.display = 'none'
             overlay[0].style.visibility = 'hidden'
 
-            console.log('after')
+            // console.log('after')
             
-            console.log(child[0].style.display)
-            console.log(overlay[0].style.visibility)
+            // console.log(child[0].style.display)
+            // console.log(overlay[0].style.visibility)
 
             parentNotClicked = true
+
+            // update courier form
+            payForm.elements['courier-fee'].value = parent.querySelector('#courier-fee').textContent.trim()
+            payForm.elements['delivery-type'].value = parent.querySelector('#delivery-type').textContent.trim()
+            payForm.elements['courier-name'].value = parent.querySelector('#courier-name').textContent.trim()
+            payForm.elements['courier-type'].value = parent.querySelector('#courier-type').textContent.trim()
+
+            // Add courier fee and display
+            let courierFee = payForm.elements['courier-fee'].value
+            courierFee = Number(courierFee)
+
+            let productTotalFee = document.getElementById('products-total-payment').textContent.slice(3)
+            productTotalFee = productTotalFee.split('.')[0].replace(',', '')
+            productTotalFee = Number(productTotalFee)
+
+            console.log(courierFee)
+            
+            document.getElementById('total-payment').textContent = courierFee + productTotalFee
         })
     });
 

@@ -1,0 +1,15 @@
+{% extends 'komesapp/updatestore.html' %}
+
+{% block popup1 %}
+
+{{address_form.errors}}
+<form action="{% url 'storeupdateaddress' store.id %}" method="post">
+    {% csrf_token %}
+    
+    <table>
+        {{address_form.as_table}}
+    </table>
+    
+    <input type="submit" value="Save">
+</form>
+{% endblock %}

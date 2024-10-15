@@ -6,6 +6,7 @@
 {{ user.username }}
 {% endif %}
 
+<br>
 <!-- check if owner, if its owner then allow to update store -->
 {% if user.id == store.owner.id %}
     <a href="{% url 'updatestore' store.id %}">Update store</a>

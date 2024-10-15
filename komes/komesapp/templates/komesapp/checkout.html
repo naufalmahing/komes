@@ -33,7 +33,7 @@ Here are your order sir
         {% endfor %}
         <tr>
             <td>Total payment: </td>
-            <td>{{order.get_total_payment}}</td>
+            <td id="products-total-payment">{{order.products_total_payment}}</td>
         </tr>
     </table>
 
@@ -46,31 +46,16 @@ Here are your order sir
         {{address.address}} <br>
     </div>
 
+    
+    <!-- <button id="change-address-button">Change Address</button> -->
+    <a href="{% url 'orderaddress' %}">Change address</a>
+
     <div>
         <h3>store address</h3>
         {{store.address.city}} <br>
-        {{store.address.address}} <br>
     </div>
-
-
-    <!-- <button id="change-address-button">Change Address</button> -->
-     <a href="{% url 'orderaddress' %}">Change address</a>
     
     <div id="change-address-modal-container"></div>
-
-    <!-- shipment form -->
-    <form action="{% url 'checkout' order.id %}" method="post">
-        <!-- {% csrf_token %} -->
-        {{ shipment_form }}
-
-        <!-- choose shipment method 
-        create a dropdown button with list of available prices and their courier name with selected price update total price 
-        -->
-        this is shipment dropdown
-
-
-        <input type="submit" value="Checkout">
-    </form>
 
     <!-- shipment options 
     get all shipment from selected address in view 
@@ -81,50 +66,12 @@ Here are your order sir
     'price': element['price']
     for element in res['couriers_api']['pricing']}
     -->
-    <select name="test" id="">
-        <option value="">
-            this is 1 <br>
-            <div>
-                this is content
-            </div>
-            <div>
-                this is another line
-            </div>
-        </option>
-        <option value="">
-            this is 1 <br>
-            <div>
-                this is content
-            </div>
-            <div>
-                this is another line
-            </div>
-        </option>
-        <option value="">
-            this is 1 <br>
-            <div>
-                this is content
-            </div>
-            <div>
-                this is another line
-            </div>
-        </option>
-        <option value="">
-            this is 1 <br>
-            <div>
-                this is content
-            </div>
-            <div>
-                this is another line
-            </div>
-        </option>
-    </select>
 
     <div id="parent" tabindex="0" >
         <div id="parent-content">
-            GRAB Same Day <br>
-            4 - 8 Hours <br>
-            19000
+            <br>
+            <br>
+            
         </div>
 
         <div class="overlay" style="visibility:hidden"></div>
@@ -132,42 +79,46 @@ Here are your order sir
         <div class="child">
             {% for shipment in shipments %}
             <div id="{{forloop.counter}}" class="courier-option">
-                {{shipment.courier_name}}
+                <div id="courier-name">
+                    {{shipment.courier_name}}
+
+                </div>
+                
                 {{shipment.courier_service_name}} <br>
                 {{shipment.duration}} <br>
-                {{shipment.price}}
+                <div id="courier-fee">
+                    {{shipment.price}}
+                </div>
+
+                <div id="courier-type" hidden>
+                    {{shipment.courier_service_code}}
+                </div>
+                <div id="delivery-type" hidden>
+                    now
+                </div>
+                <div></div>
             </div>
             <hr>
         {% endfor %}
         </div>
     </div>
-
-    <!-- <div>
-        <ul>
-            {% for shipment in shipments %}
-            <div>
-                {{shipment.courier_name}}
-                {{shipment.courier_service_name}} <br>
-                {{shipment.duration}} <br>
-                {{shipment.price}}
-            </div>
-            <hr>
-            {% endfor %}
-        </ul>
-    </div> -->
     
 
     <table>
         <tr>Total payment: </tr>
         <!-- <tr></tr> -->
-        <tr>9000000</tr>
+        <tr>
+            <p id="total-payment">
+                {{order.products_total_payment}} + Courier fee
+            </p>
+        </tr>
     </table>
 </div>
 
 <form action="{% url 'buy' order.id %}" method="post" id="pay-form">
     {% csrf_token %} 
-    <input type="hidden" name="address" value="" id="address-input">
-    <input type="hidden" name="courier" value="" id="courier-input">
+    <!-- <input type="hidden" name="address" value="" id="address-input">
+    <input type="hidden" name="courier" value="" id="courier-input"> -->
     <input type="hidden" name="courier-fee">
     <input type="hidden" name="courier-name">
     <input type="hidden" name="courier-type">

@@ -1,7 +1,7 @@
+{% extends 'komesapp/base.html' %}
 
-{% if user.is_authenticated %}
-{{ user.username }}
-{% endif %}
+{% block content %}
+
 
 <!-- add permission for creating store (only for those who don't already have a store) -->
 <form method="post" action="{% url 'updatestore' store.id %}">
@@ -18,6 +18,17 @@
     </table>
     <input type="submit" value="Update store">
 </form>
+
+<div>
+    <h3>Store address</h3>
+    {{store.address.city}} <br>
+    {{store.address.subdistrict}} <br>
+    {{store.address.ward}} <br>
+    {{store.address.address}} <br>
+    {{store.address.zipcode}} 
+</div>
+<br>
+<a href="{% url 'storeupdateaddress' store.id %}">Change store address</a> <br>
 
 <a href="{% url 'addstoreproduct' %}">Add product</a>
 
@@ -39,3 +50,5 @@
 
 <br>
 <a href="{% url 'deletestore' store.id %}">Delete</a>
+
+{% endblock %}

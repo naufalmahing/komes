@@ -25,7 +25,8 @@ from .models import (
 
 from django.template import loader
 
-from .forms import StoreForm, ProductForm, ProductImageForm, ShipmentForm, AddressForm
+from .forms import StoreForm, CreateStoreForm, ProductForm, ProductImageForm, ShipmentForm, AddressForm
+from django.forms.models import model_to_dict
 
 import datetime
 import midtransclient
@@ -141,9 +142,10 @@ class SettingsView(LoginRequiredMixin, View):
         
         has_store = True if Store.objects.filter(owner__id=request.user.id) else False
         
+        user = User.objects.get(id=request.user.id)
         return render(request, 'komesapp/settings.html', {
             'has_store': has_store,
-            'address': User.objects.get(id=request.user.id).latestaddress.address
+            'address': user.latestaddress.address if hasattr(user, 'latestaddress') else None
         })
     
 class CreateStoreView(LoginRequiredMixin, View):
@@ -151,19 +153,33 @@ class CreateStoreView(LoginRequiredMixin, View):
     redirect_field_name = "redirect_to"
     
     def get(self, request):
-        form = StoreForm() 
+        form = CreateStoreForm() 
         return render(request, 'komesapp/createstore.html', {
             'form': form
         })
     
     def post(self, request):
-        form = StoreForm(request.POST)
+        form = CreateStoreForm(request.POST)
         if form.is_valid():
+            
+            name = form.cleaned_data.get('address_name')
+            city = form.cleaned_data.get('city')
+            subdistrict = form.cleaned_data.get('subdistrict')
+            ward = form.cleaned_data.get('ward')
+            address = form.cleaned_data.get('address')
+            zipcode = form.cleaned_data.get('zipcode')
+            user = User.objects.get(id=request.user.id)
+            
+            address = Address(name=name, city=city, subdistrict=subdistrict, ward=ward, address=address, zipcode=zipcode, user=user)
+            address.save()
+            
             store = Store(
-                name=form.cleaned_data.get('name'), description=form.cleaned_data.get('description'),
-                owner=request.user
+                name=form.cleaned_data.get('store_name'), description=form.cleaned_data.get('description'),
+                owner=request.user,
+                address=address
             )
             store.save()
+
         return HttpResponseRedirect(reverse('storedetail', kwargs={
             'store_id': store.id
         }))
@@ -207,6 +223,38 @@ class UpdateStoreView(LoginRequiredMixin, View):
                 'store_id':store.id
             }))
         
+class UpdateStoreAddressView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request, *args, **kwargs):
+        store = Store.objects.get(id=kwargs['store_id'])
+        form = AddressForm(model_to_dict(store.address))
+        return render(request, 'komesapp/update_store_address.html', {
+            'address_form': form,
+            'store': store,
+        })
+    
+    def post(self, request, *args, **kwargs):
+        form = AddressForm(request.POST)
+        store = Store.objects.get(id=kwargs['store_id'])
+        if form.is_valid():
+            store.address.name = form.cleaned_data.get('name')
+            store.address.city = form.cleaned_data.get('city')
+            store.address.subdistrict = form.cleaned_data.get('subdistrict')
+            store.address.ward = form.cleaned_data.get('ward')
+            store.address.address = form.cleaned_data.get('address')
+            store.address.zipcode = form.cleaned_data.get('zipcode')
+            store.address.save()
+
+            return HttpResponseRedirect(reverse('updatestore', kwargs={
+                'store_id': kwargs['store_id']
+            }))
+        
+        # messages.error(request, form.errors)
+        return HttpResponseRedirect(reverse('storeupdateaddress', kwargs={
+                'store_id': kwargs['store_id']
+            }))
 class AddProductView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
     redirect_field_name = "redirect_to"
@@ -339,6 +387,12 @@ class BuyView(LoginRequiredMixin, View):
         # form
         # form = BuyForm()
 
+        
+        print(order.get_total_payment().amount)
+        print(order.courier_fee)
+        print(order.courier_fee.amount)
+
+
         """payment with midtransclient"""
         
         snap = midtransclient.Snap(
@@ -350,11 +404,14 @@ class BuyView(LoginRequiredMixin, View):
         transaction_token = snap.create_transaction_token({
             "transaction_details": {
                 "order_id": "order-id-python-"+timestamp,
-                "gross_amount": 200000
+                "gross_amount": int(order.get_total_payment().amount)
             }, "credit_card":{
                 "secure" : True
             }
         })
+
+        
+
         return render(request, 'komesapp/buy.html', {
             'total_payment': order.get_total_payment(),
             'order': order,
@@ -365,8 +422,9 @@ class BuyView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         order = Order.objects.get(id=kwargs['order_id'])
         order.courier_fee = request.POST['courier-fee']
-        # create a biteship order object
+        order.save()
 
+        # create a biteship order object
         url = "https://api.biteship.com/v1/orders"
 
         user = User.objects.get(id=request.user.id)
@@ -381,26 +439,38 @@ class BuyView(LoginRequiredMixin, View):
                 'quantity': 1,
                 'weight': 100 # just dummy
             } 
-        for product in order.products]
+        for product in order.products.all()]
         
-        payload = json.dumps({
-        "origin_contact_name": store_owner.first_name + ' ' + store_owner.last_name,
-        "origin_contact_phone": "088888888888",
-        "origin_address": store_owner.store.address.address,
-        "origin_note": "",
-        "origin_postal_code": store_owner.store.address.zipcode,
-        "destination_contact_name": user.first_name + ' ' + user.last_name,
-        "destination_contact_phone": "088888888888",
-        "destination_address": user.latestaddress.address.address,
-        "destination_postal_code": user.latestaddress.address.zipcode,
-        "destination_note": "",
-        "courier_company": request.POST['courier-name'],
-        "courier_type": request.POST['courier-type'],
-        "delivery_type": request.POST['delivery-type'],
-        "order_note": "Please be careful",
-        "metadata": {},
-        "items": items
-        })
+        print(store_owner.first_name)
+        print(store_owner.store.address)
+        print(store_owner.store.address.zipcode)
+        print(user.first_name)
+        print(user.latestaddress.address)
+        print(user.latestaddress.address.zipcode)
+        print(request.POST['courier-name'])
+        print(request.POST['courier-fee'])
+        print(request.POST['courier-type'])
+        print(request.POST['delivery-type'])
+
+        print(items)
+        # payload = json.dumps({
+        # "origin_contact_name": store_owner.first_name + ' ' + store_owner.last_name,
+        # "origin_contact_phone": "088888888888",
+        # "origin_address": store_owner.store.address.address,
+        # "origin_note": "",
+        # "origin_postal_code": store_owner.store.address.zipcode,
+        # "destination_contact_name": user.first_name + ' ' + user.last_name,
+        # "destination_contact_phone": "088888888888",
+        # "destination_address": user.latestaddress.address.address,
+        # "destination_postal_code": user.latestaddress.address.zipcode,
+        # "destination_note": "",
+        # "courier_company": request.POST['courier-name'],
+        # "courier_type": request.POST['courier-type'],
+        # "delivery_type": request.POST['delivery-type'],
+        # "order_note": "Please be careful",
+        # "metadata": {},
+        # "items": items
+        # })
 
         # payload = json.dumps({
         # "shipper_contact_name": "Amir",
@@ -444,13 +514,13 @@ class BuyView(LoginRequiredMixin, View):
             'Authorization': 'Bearer biteship_test.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzIGFwaSIsInVzZXJJZCI6IjY2ZjhkNzMwZDZjNjQ3MDAxMjA1MGQxMSIsImlhdCI6MTcyNzU4NDIzMH0.eQlCI2RFeMiUoHzwO5_DZ7aajUuxDbIIk_tdkDrg8mA'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        # response = requests.request("POST", url, headers=headers, data=payload)
 
-        print(response.text)
+        # print(response.text)
 
-        return HttpResponseRedirect(reverse('buy'), kwargs={
+        return HttpResponseRedirect(reverse('buy', kwargs={
             'order_id': kwargs['order_id']
-        })
+        }))
 
 
 class LatestAddressView(LoginRequiredMixin, View):
@@ -521,7 +591,8 @@ class OrderChangeAddressModalView(LoginRequiredMixin, View):
         return HttpResponse(loader.render_to_string('komesapp/address_change_modal_from_order.html', context={
             'addresses': user.address_set.all(),
             'address': user.latestaddress.address,
-            'order': user.order_set.last()
+            'order': user.order_set.last(),
+            'store': user.store
         }, request=request))
     
         """v.1
@@ -673,7 +744,8 @@ class OrderCreateAddressModalView(LoginRequiredMixin, View):
         return HttpResponse(loader.render_to_string('komesapp/address_input_modal_from_order.html', context={
             'address_form': form,
             'order': user.order_set.last(),
-            'address': user.latestaddress.address
+            'address': user.latestaddress.address,
+            'store': user.store
         }, request=request))
 
     
@@ -837,7 +909,7 @@ class CheckoutView(LoginRequiredMixin, View):
 
         response = requests.request('GET', url)
 
-        response.json()
+        return response.json()
 
     def get(self, request, *args, **kwargs):
         """get origin and address input
@@ -884,14 +956,16 @@ class CheckoutView(LoginRequiredMixin, View):
 
         # print('this is key: pricing')
         # print(res['pricing'])
-        d = [
-            {
-                'courier_name': element['courier_name'],
-                'courier_service_name': element['courier_service_name'], 
-                'duration': element['duration'], 
-                'price': element['price']
-            } for element in res['pricing']
-        ]
+        # d = [
+        #     {
+        #         'courier_name': element['courier_name'],
+        #         'courier_service_name': element['courier_service_name'], 
+        #         'duration': element['duration'], 
+        #         'price': element['price']
+        #     } for element in res['pricing']
+        # ]
+
+        rates = [d for d in res['pricing']]
         
         # print('this is d')
         # print(d)
@@ -908,7 +982,8 @@ class CheckoutView(LoginRequiredMixin, View):
             'order': order,
             'shipment_form': shipment_form,
             'address': address,
-            'shipments': d
+            'shipments': rates,
+            'store': User.objects.get(id=request.user.id).store
         })
     
     def post(self, request, *args, **kwargs):
@@ -927,3 +1002,39 @@ class CheckoutView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse('buy'), kwargs={
             'order_id': kwargs['order_id']
         })
+    
+class SuccessPaymentView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request):
+        messages.success(request, 'Payment success')
+
+        user = User.objects.get(id=request.user.id)
+        last_order = user.order_set.last()
+        last_order.active = False
+        last_order.save()
+
+        user.order_set.create()
+        
+        return HttpResponseRedirect(reverse('index'))
+
+class ErrorPaymentView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request):
+        messages.error(request, 'Payment error')
+        return HttpResponseRedirect(reverse('buy', kwargs={
+            'order_id': User.objects.get(id=request.user.id).order_set.last().id
+        }))
+
+class UnfinishedPaymentView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request):
+        messages.warning(request, 'Payment unfinished')
+        return HttpResponseRedirect(reverse('buy', kwargs={
+            'order_id': User.objects.get(id=request.user.id).order_set.last().id
+        }))

@@ -15,7 +15,7 @@ class Address(models.Model):
     
 
 class LatestAddress(models.Model):
-    user=models.OneToOneField(User, on_delete=models.CASCADE)
+    user=models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     address=models.OneToOneField(Address, on_delete=models.CASCADE)
     
 class Store(models.Model):
@@ -25,7 +25,7 @@ class Store(models.Model):
         User,
         on_delete=models.CASCADE,
     )
-    address=models.OneToOneField(Address, on_delete=models.CASCADE, default=Address(name=name, city='bandung', subdistrict='griya bandung', ward='selatan timur', address='jl ujung hari no 99', zipcode='79829'))
+    address=models.OneToOneField(Address, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return str(self.id) + '-' + self.name
@@ -59,6 +59,9 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
+    def products_total_payment(self):
+        return sum([product.price for product in self.products.all()])
     
     def get_total_payment(self):
         total = sum([product.price for product in self.products.all()])

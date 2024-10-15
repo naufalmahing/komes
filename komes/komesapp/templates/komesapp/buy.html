@@ -17,14 +17,9 @@ Here are your order sir
 {% endif %}
 
 <div>
-    {% if order.products.all %}
-    <a href="{% url 'clearorder' %}">Clear order</a>
-    {% else %}
-    Order empty
-    {% endif %}
 
     <!-- total payment -->
-    <table>
+    <!-- <table>
         <tr>
             <td>Product</td>
             <td>Price</td>
@@ -39,7 +34,7 @@ Here are your order sir
             <td>Total payment: </td>
             <td>{{total_payment}}</td>
         </tr>
-    </table>
+    </table> -->
     
 
     <!-- form -->
@@ -59,7 +54,7 @@ Here are your order sir
     <!-- create a dropdown button with list of available prices and their courier name
     with selected price update total price -->
 
-    <button id="pay-button">Pay</button>
+    <!-- <button id="pay-button">Pay</button> -->
 
     <!-- midtrans payment form -->
     <div id="snap-container"></div>
@@ -71,14 +66,12 @@ Here are your order sir
 <script>
     console.log('this is script')
     // For example trigger on button clicked, or any time you need
-    var payButton = document.getElementById('pay-button');
-    payButton.addEventListener('click', function () {
+    document.addEventListener('DOMContentLoaded', async() => {
         // Trigger snap popup. @TODO: Replace TRANSACTION_TOKEN_HERE with your transaction token.
         // Also, use the embedId that you defined in the div above, here.
-        console.log('{{snap_token}}')
         window.snap.embed('{{snap_token}}', {
             embedId: 'snap-container'
         });
-    });
+    })
 </script>
 {% endblock %}

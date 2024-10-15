@@ -22,6 +22,7 @@ urlpatterns = [
     path('stores/create/', views.CreateStoreView.as_view(), name='createstore'),
     path('stores/<int:store_id>/', views.StoreDetailView.as_view(), name='storedetail'),
     path('stores/update/<int:store_id>/', views.UpdateStoreView.as_view(), name='updatestore'),
+    path('stores/update/<int:store_id>/address/', views.UpdateStoreAddressView.as_view(), name='storeupdateaddress'),
     path('stores/delete/<int:pk>/', views.DeleteStoreView.as_view(), name='deletestore'),
 
     path('stores/product/add/', views.AddProductView.as_view(), name='addstoreproduct'),
@@ -46,6 +47,10 @@ urlpatterns = [
 
     path('latest-address/update/<int:address_id>/', views.LatestAddressView.as_view(), name='chooselatestaddress'),
     
+    path('payment/success/', views.SuccessPaymentView.as_view(), name='paymentsuccess'),
+    path('payment/error', views.ErrorPaymentView.as_view(), name='paymenterror'),
+    path('payment/unfinished/', views.UnfinishedPaymentView.as_view(), name='paymentunfinished'),
+
     path('api-test/', views.api_test, name='apitest'),
     path('uploadpreview/', views.upload_preview_image),
 ]

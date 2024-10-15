@@ -35,6 +35,16 @@ class AddressForm(forms.Form):
     address = forms.CharField(widget=forms.Textarea())
     zipcode = forms.CharField(label='Zip Code', max_length=20)
 
+class CreateStoreForm(forms.Form):
+    store_name = forms.CharField(label='Store name', max_length=100)
+    description = forms.CharField(label='Store description', widget=forms.Textarea(), required=False)
+
+    address_name = forms.CharField(label='Address Name', max_length=250)
+    city = forms.CharField(label='City', max_length=100)
+    subdistrict = forms.CharField(label='Subdistrict', max_length=150)
+    ward = forms.CharField(label='Ward', max_length=200)
+    address = forms.CharField(widget=forms.Textarea())
+    zipcode = forms.CharField(label='Zip Code', max_length=20)
 
 class ChooseAddessForm(forms.Form):
     pass

@@ -27,13 +27,17 @@ Here are your settings sir
     <!-- <a href="{% url 'address' %}">Addresses</a>
       -->
     <div>
-        <h3>selected address</h3>
-        {{address.name}} <br>
-        {{address.city}} <br>
-        {{address.address}} <br>
+        {% if address %}
+          <h3>selected address</h3>
+          {{address.name}} <br>
+          {{address.city}} <br>
+          {{address.address}} <br>
+          <!-- <button id="change-address-button">Change Address</button> -->
+          <a href="{% url 'settingsaddress' %}">Change address</a>
+        {% else %}
+        There isn't an address
+        {% endif %}
     </div>
-    <!-- <button id="change-address-button">Change Address</button> -->
-    <a href="{% url 'settingsaddress' %}">Change address</a>
 
 </div>
 
