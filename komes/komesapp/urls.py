@@ -42,8 +42,10 @@ urlpatterns = [
     path('order/address/create/', views.OrderCreateAddressModalView.as_view(), name='ordercreateaddress'),
     path('settings/address/create/', views.SettingsCreateAddressModalView.as_view(), name='settingscreateaddress'),
 
-    path('address/update/<int:address_id>/', views.UpdateAddressView.as_view(), name='updateaddress'),
-    path('address/delete/<int:address_id>/', views.DeleteAddressView.as_view(), name='deleteaddress'),
+    path('order/address/update/<int:address_id>/', views.OrderUpdateAddressView.as_view(), name='orderupdateaddress'),
+    path('settings/address/update/<int:address_id>/', views.SettingsUpdateAddressView.as_view(), name='settingsupdateaddress'),
+    path('order/address/delete/<int:address_id>/', views.OrderDeleteAddressView.as_view(), name='orderdeleteaddress'),
+    path('settings/address/delete/<int:address_id>/', views.SettingsDeleteAddressView.as_view(), name='settingsdeleteaddress'),
 
     path('latest-address/update/<int:address_id>/', views.LatestAddressView.as_view(), name='chooselatestaddress'),
     

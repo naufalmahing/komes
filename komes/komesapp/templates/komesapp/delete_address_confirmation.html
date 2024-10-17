@@ -1,8 +1,0 @@
-{% extends 'komesapp/address_change_modal.html' %}
-
-{% block popup2 %}
-<form action="{% url 'deleteaddress' address.id %}" id="delete-address-confirmation-form" method="post"> {% csrf_token %}
-    <h4>this is delete address confirmation form</h4>
-    <input type="submit" value="Delete">
-</form>
-{% endblock %}

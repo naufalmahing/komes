@@ -8,3 +8,4 @@ test_api/
 **.sqlite3
 tes.html
 .env
+todo.txt

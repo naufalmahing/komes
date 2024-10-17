@@ -85,6 +85,10 @@ class OrderView(LoginRequiredMixin, View):
         
         OrderProduct(product=product, order=order).save()
         messages.success(request, 'Product added to order')
+        if request.POST['redirect_to']:
+            redirect_to = request.POST['redirect_to']
+            return HttpResponseRedirect(redirect_to)
+
         return HttpResponseRedirect(reverse(
             'storedetail', 
             kwargs={
@@ -101,6 +105,7 @@ class DeleteProductFromOrderView(LoginRequiredMixin, View):
         product = Product.objects.get(id=kwargs['product_id'])
         order.orderproduct_set.filter(order__id=order.id, product__id=product.id).last().delete()
        
+        messages.success(request, 'Product deleted from order')
         return HttpResponseRedirect(
            reverse('order')
        )
@@ -826,16 +831,18 @@ class SettingsCreateAddressModalView(LoginRequiredMixin, View):
             
             return HttpResponseRedirect(reverse('settingsaddress'))
 
-class DeleteAddressView(LoginRequiredMixin, View):
+class OrderDeleteAddressView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
     redirect_field_name = "redirect_to"
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        return HttpResponse(loader.render_to_string('komesapp/delete_address_confirmation.html', context={
+        return HttpResponse(loader.render_to_string('komesapp/delete_address_confirmation_from_order.html', context={
                 'addresses': user.address_set.all(),
-                'address': user.latestaddress.address,
-                'order': user.order_set.last()
+                'address': Address.objects.get(id=kwargs['address_id']),
+                'order': user.order_set.last(),
+                'store': user.order_set.last().products.first().store,
+                'previous_url': request.META['HTTP_REFERER']
             }, request=request))
 
     def post(self, request, *args, **kwargs):
@@ -846,33 +853,103 @@ class DeleteAddressView(LoginRequiredMixin, View):
             ids.remove(user.latestaddress.address.id)
             user.latestaddress.address = user.address_set.get(id=ids[0])
             user.latestaddress.save()
+        messages.success(request, 'Delete address: ' + address.name)
         address.delete()
-        return HttpResponse(status=200)
+
+        return HttpResponseRedirect(request.POST['redirect_to'])
 
 
-class UpdateAddressView(LoginRequiredMixin, View):
+class SettingsDeleteAddressView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
     redirect_field_name = "redirect_to"
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.filter(id=kwargs['address_id'])
-        # address to dictionary
-        address_dict = address.value().first()
-        form = AddressForm(instance=address) # this form doesn't use ModelForm
+        return HttpResponse(loader.render_to_string('komesapp/delete_address_confirmation_from_settings.html', context={
+                'addresses': user.address_set.all(),
+                'address': Address.objects.get(id=kwargs['address_id']),
+                'previous_url': request.META['HTTP_REFERER']
+            }, request=request))
 
-        return render(request, 'komesapp/address_input.html', {
+    def post(self, request, *args, **kwargs):
+        address = Address.objects.get(id=kwargs['address_id'])
+        user = User.objects.get(id=request.user.id)
+        if user.latestaddress.address.id == address.id:
+            ids = [address.id for address in user.address_set.all()]
+            ids.remove(user.latestaddress.address.id)
+            user.latestaddress.address = user.address_set.get(id=ids[0])
+            user.latestaddress.save()
+        messages.success(request, 'Delete address: ' + address.name)
+        address.delete()
+
+        return HttpResponseRedirect(request.POST['redirect_to'])
+
+class OrderUpdateAddressView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(id=request.user.id)
+        address = user.address_set.get(id=kwargs['address_id'])
+        # address to dictionary
+        address_dict = model_to_dict(address)
+        form = AddressForm(address_dict)
+
+        return render(request, 'komesapp/address_update_modal_from_order.html', {
+            'address': address,
+            'address_form': form,
+            'order': user.order_set.last(),
+            'store': user.order_set.last().products.first().store
+        })
+    
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(id=request.user.id)
+        address = user.address_set.get(id=kwargs['address_id'])
+
+        form = AddressForm(request.POST)
+        if form.is_valid():
+            address.name = form.cleaned_data.get('name')
+            address.city = form.cleaned_data.get('city')
+            address.subdistrict = form.cleaned_data.get('subdistrict')
+            address.ward = form.cleaned_data.get('ward')
+            address.address = form.cleaned_data.get('address')
+            address.zipcode = form.cleaned_data.get('zipcode')
+            address.save()
+
+            return HttpResponseRedirect(reverse('orderaddress'))
+        
+
+class SettingsUpdateAddressView(LoginRequiredMixin, View):
+    login_url = '/accounts/login'
+    redirect_field_name = "redirect_to"
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(id=request.user.id)
+        address = user.address_set.get(id=kwargs['address_id'])
+        # address to dictionary
+        address_dict = model_to_dict(address)
+        form = AddressForm(address_dict)
+
+        return render(request, 'komesapp/address_update_modal_from_settings.html', {
+            'address': address,
             'address_form': form
         })
     
     def post(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.filter(id=kwargs['address_id'])
+        address = user.address_set.get(id=kwargs['address_id'])
 
-        form = AddressForm(request.POST, instance=address)
+        form = AddressForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('address')) # idk if this is the right page to return, might need dynamic return page
+            address.name = form.cleaned_data.get('name')
+            address.city = form.cleaned_data.get('city')
+            address.subdistrict = form.cleaned_data.get('subdistrict')
+            address.ward = form.cleaned_data.get('ward')
+            address.address = form.cleaned_data.get('address')
+            address.zipcode = form.cleaned_data.get('zipcode')
+            address.save()
+
+            return HttpResponseRedirect(reverse('settingsaddress'))
         
 class CheckoutView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
@@ -919,6 +996,34 @@ class CheckoutView(LoginRequiredMixin, View):
         # url = "https://api.biteship.com/v1/rates/couriers"
         url = 'https://my-json-server.typicode.com/naufalmahing/fakejsonserver/couriers_api'
 
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': BITESHIP_TOKEN
+        }
+
+        # get position from address provided
+        user = User.objects.get(id=request.user.id)
+        address = user.latestaddress.address
+
+
+        maps_api_url = 'https://api.biteship.com/v1/maps/areas'
+        
+        maps_api_res = requests.get(
+            maps_api_url,headers=headers, params={
+                'country': 'ID',
+                'input': address.subdistrict,
+                'type': 'single'
+            }
+        )
+
+        print(maps_api_res.json())
+        area = [el['id'] for el in maps_api_res.json()['areas'] if 
+        el['administrative_division_level_2_name'].lower() == address.city and 
+        el['administrative_division_level_3_name'].lower() == address.subdistrict and
+        el['postal_code'] == address.zipcode]
+        print(area)
+
         payload = json.dumps({
         "origin_latitude": -6.3031123,
         "origin_longitude": 106.7794934999,
@@ -938,10 +1043,6 @@ class CheckoutView(LoginRequiredMixin, View):
             }
         ]
         })
-        headers = {
-        'Content-Type': 'application/json',
-        'Authorization': BITESHIP_TOKEN
-        }
 
         # response = requests.request("POST", url, headers=headers, data=payload)
 

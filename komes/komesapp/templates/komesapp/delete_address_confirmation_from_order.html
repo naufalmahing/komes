@@ -1,0 +1,15 @@
+{% extends 'komesapp/checkout.html' %}
+
+{% block popup2 %}
+<div>
+    <h1>order delete address confirmation form</h1>
+
+    <form action="{% url 'orderdeleteaddress' address.id %}" id="delete-address-confirmation-form" method="post"> {% csrf_token %}
+        <input type="submit" value="Delete">
+        <input type="hidden" name="redirect_to" value="{{previous_url}}">
+    </form>
+
+    <a href="{% url 'orderaddress' %}">Close delete address modal</a>
+
+</div>
+{% endblock %}

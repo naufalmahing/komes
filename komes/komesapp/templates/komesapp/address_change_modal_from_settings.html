@@ -24,8 +24,8 @@
                 <li>
                     {{addr.name}} <br>
                     {{addr.address}} <br>
-                    <a href="{% url 'updateaddress' addr.id%}">Update</a>
-                    <a href="{% url 'deleteaddress' addr.id%}" id="delete-address-button">Delete</a>
+                    <a href="{% url 'settingsupdateaddress' addr.id%}">Update</a>
+                    <a href="{% url 'settingsdeleteaddress' addr.id%}" id="delete-address-button">Delete</a>
 
                 </li>
                 

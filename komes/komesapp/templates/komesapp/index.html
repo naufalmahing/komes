@@ -13,16 +13,18 @@ display a list of products
 -->
 
 <div>
-    <ul>
-        {% for product in products %}
-            <li>
-                {{product.name}} 
-                {% for tag in product.tag_set.all %}
-                    - {{tag}}
-                {% endfor %}
-            </li>
-        {% endfor %}
-    </ul>
+    {% for product in products %}
+        <img src="{{product.photo.url}}" alt="" height="200" width="150">
+        <br>
+        {{product.name}}
+        <br>
+        {{product.price.amount}}
+        <form action="{% url 'addorder' product.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="redirect_to" value="{{request.path}}">
+            <input type="submit" value="Add to Order">
+        </form>
+    {% endfor %}
 </div>
 
 {% endblock %}

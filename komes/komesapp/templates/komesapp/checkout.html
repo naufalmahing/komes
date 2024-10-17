@@ -2,6 +2,9 @@
 
 {% load static %}
 
+{% block title %}
+Komesapp Checkout
+{% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{% static 'komesapp/style.css' %}">
@@ -52,6 +55,7 @@ Here are your order sir
 
     <div>
         <h3>store address</h3>
+        {{store.name}} <br>
         {{store.address.city}} <br>
     </div>
     

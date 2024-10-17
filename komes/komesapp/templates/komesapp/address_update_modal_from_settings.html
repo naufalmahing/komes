@@ -1,0 +1,18 @@
+{% extends 'komesapp/settings.html' %}
+
+{% block popup2 %}
+<h1>update address modal</h1>
+
+
+<form action="{% url 'settingsupdateaddress' address.id %}" method="post" >
+    {% csrf_token %}
+    <table>
+        {{address_form.as_table}}
+    </table>
+    <input type="submit" value="Update address">
+</form>
+
+<!-- close create address modal button -->
+<!-- <button id="create-address-modal-close-button">Close create address modal</button> -->
+<a href="{% url 'settingsaddress' %}">Close create address modal</a>
+{% endblock %}
