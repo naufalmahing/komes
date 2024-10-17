@@ -42,6 +42,9 @@ Here are your order sir
 
     <!-- <a href="{% url 'address' %}">Change address</a> -->
     
+    
+    {% if address %}
+
     <div>
         <h3>selected address</h3>
         {{address.name}} <br>
@@ -52,6 +55,9 @@ Here are your order sir
     
     <!-- <button id="change-address-button">Change Address</button> -->
     <a href="{% url 'orderaddress' %}">Change address</a>
+    {% else %}
+    <a href="{% url 'ordercreateaddress' %}">Create address</a>
+    {% endif %}
 
     <div>
         <h3>store address</h3>
@@ -119,10 +125,10 @@ Here are your order sir
     </table>
 </div>
 
-<form action="{% url 'buy' order.id %}" method="post" id="pay-form">
+<form action="{% url 'checkout' order.id %}" method="post" id="pay-form">
     {% csrf_token %} 
-    <!-- <input type="hidden" name="address" value="" id="address-input">
-    <input type="hidden" name="courier" value="" id="courier-input"> -->
+    <input type="hidden" name="address" value="{{address.name}}">
+    <!-- <input type="hidden" name="courier" value="" id="courier-input"> -->
     <input type="hidden" name="courier-fee">
     <input type="hidden" name="courier-name">
     <input type="hidden" name="courier-type">

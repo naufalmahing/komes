@@ -9,9 +9,18 @@ from .models import (
     Address,
 )
 
+class AddressInline(admin.TabularInline):
+    model = Address
+
+class StoreAdmin(admin.ModelAdmin):
+    # inlines = [
+    #     AddressInline
+    # ]
+    list_display=['name', 'address']
+
 admin.site.register(Order)
 admin.site.register(Product)
-admin.site.register(Store)
+admin.site.register(Store, StoreAdmin)
 admin.site.register(Tag)
 admin.site.register(OrderProduct)
 admin.site.register(LatestAddress)

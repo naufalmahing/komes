@@ -440,7 +440,7 @@ class BuyView(LoginRequiredMixin, View):
         items = [
             {
                 'name': product.name,
-                'value': product.price, 
+                'value': int(product.price.amount), 
                 'quantity': 1,
                 'weight': 100 # just dummy
             } 
@@ -955,38 +955,38 @@ class CheckoutView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
     redirect_field_name = "redirect_to"
 
-    def get_rate(self):
-        url = 'https://my-json-server.typicode.com/naufalmahing/fakejsonserver/couriers_api'
+    # def get_rate(self):
+    #     url = 'https://my-json-server.typicode.com/naufalmahing/fakejsonserver/couriers_api'
 
-        payload = json.dumps({
-        "origin_latitude": -6.3031123,
-        "origin_longitude": 106.7794934999,
-        "destination_latitude": -6.2441792,
-        "destination_longitude": 106.783529,
-        "couriers": "grab,jne,tiki",
-        "items": [
-            {
-            "name": "Shoes",
-            "description": "Black colored size 45",
-            "value": 199000,
-            "length": 30,
-            "width": 15,
-            "height": 20,
-            "weight": 200,
-            "quantity": 2
-            }
-        ]
-        })
-        headers = {
-        'Content-Type': 'application/json',
-        'Authorization': BITESHIP_TOKEN
-        }
+    #     payload = json.dumps({
+    #     "origin_latitude": -6.3031123,
+    #     "origin_longitude": 106.7794934999,
+    #     "destination_latitude": -6.2441792,
+    #     "destination_longitude": 106.783529,
+    #     "couriers": "grab,jne,tiki",
+    #     "items": [
+    #         {
+    #         "name": "Shoes",
+    #         "description": "Black colored size 45",
+    #         "value": 199000,
+    #         "length": 30,
+    #         "width": 15,
+    #         "height": 20,
+    #         "weight": 200,
+    #         "quantity": 2
+    #         }
+    #     ]
+    #     })
+    #     headers = {
+    #     'Content-Type': 'application/json',
+    #     'Authorization': BITESHIP_TOKEN
+    #     }
 
-        # response = requests.request("POST", url, headers=headers, data=payload)
+    #     # response = requests.request("POST", url, headers=headers, data=payload)
 
-        response = requests.request('GET', url)
+    #     response = requests.request('GET', url)
 
-        return response.json()
+    #     return response.json()
 
     def get(self, request, *args, **kwargs):
         """get origin and address input
@@ -1004,7 +1004,9 @@ class CheckoutView(LoginRequiredMixin, View):
 
         # get position from address provided
         user = User.objects.get(id=request.user.id)
+        order = user.order_set.last()
         address = user.latestaddress.address
+        store_address = user.order_set.last().products.first().store.address
 
 
         maps_api_url = 'https://api.biteship.com/v1/maps/areas'
@@ -1017,12 +1019,66 @@ class CheckoutView(LoginRequiredMixin, View):
             }
         )
 
-        print(maps_api_res.json())
-        area = [el['id'] for el in maps_api_res.json()['areas'] if 
-        el['administrative_division_level_2_name'].lower() == address.city and 
-        el['administrative_division_level_3_name'].lower() == address.subdistrict and
-        el['postal_code'] == address.zipcode]
+        areas = maps_api_res.json()['areas']
+
+        area = [el['id'] for el in areas if 
+        el['administrative_division_level_2_name'].lower() in address.city.lower() and 
+        el['administrative_division_level_3_name'].lower() in address.subdistrict.lower() and
+        el['postal_code'] == int(address.zipcode)]
         print(area)
+
+        
+        maps_api_res = requests.get(
+            maps_api_url,headers=headers, params={
+                'country': 'ID',
+                'input': store_address.subdistrict,
+                'type': 'single'
+            }
+        )
+        areas = maps_api_res.json()['areas']
+
+        # print(store_address.city)
+        # print(areas[0]['administrative_division_level_2_name'])
+        # print(store_address.subdistrict)
+        # print(areas[0]['administrative_division_level_3_name'])
+        # print(store_address.zipcode)
+        # print(areas[0]['postal_code'])
+
+        store_area = [el['id'] for el in areas if 
+        el['administrative_division_level_2_name'].lower() in store_address.city.lower() and 
+        el['administrative_division_level_3_name'].lower() in store_address.subdistrict.lower() and
+        el['postal_code'] == int(store_address.zipcode)]
+        print(store_area)
+        
+        if not store_area or not area: 
+            if not store_area:
+                messages.error(request, 'Store address is not valid in Indonesia, wait for the store to correct it')
+            if not area:
+                messages.error(request, 'User address is not valid in Indonesia, check if it is a correct address')
+
+            return HttpResponseRedirect(reverse('order'))
+        
+        
+        items = [
+            {
+            "name": product.name,
+            "description": "",
+            "value": int(product.price.amount),
+            "length": 30,
+            "width": 15,
+            "height": 20,
+            "weight": 200,
+            "quantity": 1
+            }
+        for product in order.products.all()]
+        print(items)
+
+        # payload = json.dumps({
+        #     "origin_area_id": store_area[0],
+        #     "destination_area_id": area[0],
+        #     "couriers": "paxel,jne,sicepat",
+        #     "items": items
+        # })
 
         payload = json.dumps({
         "origin_latitude": -6.3031123,
@@ -1091,14 +1147,19 @@ class CheckoutView(LoginRequiredMixin, View):
         # send message if no address
         if request.POST['address'] == '':
             messages.error(request, 'Use an address')
-            return HttpResponseRedirect(reverse('checkout'), kwargs={
+            return HttpResponseRedirect(reverse('checkout', kwargs={
                 'order_id': kwargs['order_id']
-            })
-        elif request.POST['courier'] == '':
+            }))
+        elif not Address.objects.filter(name=request.POST['address']):
+            messages.error(request, 'Can not find address')
+            return HttpResponseRedirect(reverse('checkout', kwargs={
+                'order_id': kwargs['order_id']
+            }))
+        elif request.POST['courier-name'] == '':
             messages.error(request, 'Choose a courier')
-            return HttpResponseRedirect(reverse('checkout'), kwargs={
+            return HttpResponseRedirect(reverse('checkout', kwargs={
                 'order_id': kwargs['order_id']
-            })
+            }))
         
         return HttpResponseRedirect(reverse('buy'), kwargs={
             'order_id': kwargs['order_id']

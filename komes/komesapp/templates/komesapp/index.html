@@ -12,8 +12,9 @@ Here are your products sir
 display a list of products
 -->
 
-<div>
-    {% for product in products %}
+{% for product in products %}
+<a href="{% url 'storedetail' product.store.id %}">
+    <div>
         <img src="{{product.photo.url}}" alt="" height="200" width="150">
         <br>
         {{product.name}}
@@ -24,7 +25,9 @@ display a list of products
             <input type="hidden" name="redirect_to" value="{{request.path}}">
             <input type="submit" value="Add to Order">
         </form>
-    {% endfor %}
-</div>
+    </div>
+</a>
+
+{% endfor %}
 
 {% endblock %}

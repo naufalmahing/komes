@@ -44,14 +44,19 @@
 
     <script>
         const msgElement = document.getElementById('msg')
-        if (msgElement) {
-            setTimeout(function() {
-                if (msgElement.textContent.length > 0) {
-                    msgElement.remove()
-                }
-            }, 2000)
-        }
+        // if (msgElement) {
+        //     setTimeout(function() {
+        //         if (msgElement.textContent.length > 0) {
+        //             msgElement.remove()
+        //         }
+        //     }, 2000)
+        // }
 
+        if (msgElement) {
+            msgElement.addEventListener('click', async() => {
+                msgElement.remove()
+            })
+        }
     </script>
 
     {% block script %}{% endblock %}
