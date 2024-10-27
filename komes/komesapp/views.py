@@ -795,9 +795,10 @@ class SettingsCreateAddressModalView(LoginRequiredMixin, View):
         # return render(request, 'komesapp/create_address.html', context={
         #     'address_form': form
         # })
-    
+        user = User.objects.get(id=request.user.id)
         return HttpResponse(loader.render_to_string('komesapp/address_input_modal_from_settings.html', context={
             'address_form': form,
+            'address': user.latestaddress.address
         }, request=request))
 
     
@@ -898,6 +899,7 @@ class OrderUpdateAddressView(LoginRequiredMixin, View):
         return render(request, 'komesapp/address_update_modal_from_order.html', {
             'address': address,
             'address_form': form,
+            'addresses': user.address_set.all(),
             'order': user.order_set.last(),
             'store': user.order_set.last().products.first().store
         })
@@ -932,7 +934,7 @@ class SettingsUpdateAddressView(LoginRequiredMixin, View):
 
         return render(request, 'komesapp/address_update_modal_from_settings.html', {
             'address': address,
-            'address_form': form
+            'address_form': form,
         })
     
     def post(self, request, *args, **kwargs):

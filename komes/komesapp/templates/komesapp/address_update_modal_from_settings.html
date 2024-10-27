@@ -1,18 +1,65 @@
-{% extends 'komesapp/settings.html' %}
+{% extends 'komesapp/address_change_modal_from_settings.html' %}
+
+{% load tailwind_filters %}
 
 {% block popup2 %}
-<h1>update address modal</h1>
 
+<div class="relative z-10">
 
-<form action="{% url 'settingsupdateaddress' address.id %}" method="post" >
-    {% csrf_token %}
-    <table>
-        {{address_form.as_table}}
-    </table>
-    <input type="submit" value="Update address">
-</form>
+    <div class="fixed inset-0 bg-gray-500 opacity-50" aria-hidden="true"></div>
 
-<!-- close create address modal button -->
-<!-- <button id="create-address-modal-close-button">Close create address modal</button> -->
-<a href="{% url 'settingsaddress' %}">Close create address modal</a>
+    <div class="fixed inset-0  w-full z-10">
+        <div class="fixed flex min-h-full inset-0 items-end justify-center p-4 text-center sm:items-center sm:text-left sm:p-0">
+
+            <div class="flex flex-col relative bg-white rounded-lg shadow-xl px-4 py-2 pb-[2rem] sm:p-6 h-[70%] sm:h-[90%] sm:w-full sm:max-w-lg">
+                
+                <h3 class="text-lg font-bold leading-text-gray-900 mb-2 h-auto">
+                    Update address
+
+                </h3>
+                <!-- <div class="grow bg-slate-500">
+                    <div class="h-auto bg-slate-200">
+                        tes
+                    </div>
+
+                </div> -->
+                
+                <div class="grow overflow-y-auto  border-t-[1px] border-b-[1px] border-slate-100">
+                    <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-2">
+                        <div class="my-3 ">
+    
+                            
+                            <form action="{% url 'settingsupdateaddress' address.id %}" method="post">
+                                {% csrf_token %}
+                                <table>
+                                    <tr>
+                                        
+                                    </tr>
+                                    <!-- {{address_form.as_table}} -->
+                                </table>
+                                {{address_form|crispy}}
+                                
+                                <div class="py-3 sm:flex sm:flex-row-reverse">
+    
+                                    <input type="submit" value="Update address" class="inline-flex w-full justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-400 sm:ml-3 sm:w-auto">
+                                    <a href="{% url 'settingsaddress' %}" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-300 sm:mt-0 sm:w-auto">Cancel</a>
+                                </div>
+    
+                        </form>
+    
+                            <!-- close create address modal button -->
+                            <!-- <button id="create-address-modal-close-button">Close create address modal</button> -->
+    
+                        </div>
+    
+    
+                    </div>
+    
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 {% endblock %}

@@ -7,6 +7,8 @@
         Komesapp
         {% endblock %}
     </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
     {% block header %}
     {% endblock %}
 </head>
@@ -32,10 +34,9 @@
     <div>
         <div>
             {% block popup1 %}
-                <div>
-                    {% block popup2 %}
-                    {% endblock %}
-                </div>
+            {% endblock %}
+            
+            {% block popup2 %}
             {% endblock %}
         </div>
         {% block content %}

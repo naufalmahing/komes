@@ -23,19 +23,19 @@ Here are your order sir
 
 <div>
     <!-- total payment -->
-    <table>
-        <tr>
-            <td>Product</td>
+    <table class="border-[1px] border-black rounded-md">
+        <tr class="border-[1px] border-black">
+            <td class="border-r-[1px] border-black">Product</td>
             <td>Price</td>
         </tr>
         {% for product in order.products.all %}
-        <tr>
-            <td>{{product.name}}</td>
+        <tr class="border-[1px] border-black">
+            <td class="border-r-[1px] border-black">{{product.name}}</td>
             <td>{{product.price}}</td>
         </tr>
         {% endfor %}
-        <tr>
-            <td>Total payment: </td>
+        <tr class="border-[1px] border-black ">
+            <td class="border-r-[1px] border-black pr-[50px]">Total payment: </td>
             <td id="products-total-payment">{{order.products_total_payment}}</td>
         </tr>
     </table>
@@ -46,15 +46,18 @@ Here are your order sir
     {% if address %}
 
     <div>
-        <h3>selected address</h3>
-        {{address.name}} <br>
-        {{address.city}} <br>
-        {{address.address}} <br>
+        <h3 class="text-lg font-semibold">selected address</h3>
+        <div class="px-4 py-2 border-[1px] shadow-md rounded-sm sm:w-[24rem]">
+            {{address.name}} <br>
+            {{address.city}} <br>
+            {{address.address}} <br>
+
+        </div>
     </div>
 
     
     <!-- <button id="change-address-button">Change Address</button> -->
-    <a href="{% url 'orderaddress' %}">Change address</a>
+    <a href="{% url 'orderaddress' %}" class="hover:underline">Change address</a>
     {% else %}
     <a href="{% url 'ordercreateaddress' %}">Create address</a>
     {% endif %}
@@ -77,7 +80,7 @@ Here are your order sir
     for element in res['couriers_api']['pricing']}
     -->
 
-    <div id="parent" tabindex="0" >
+    <div id="parent" tabindex="0" class="bg-white border-[1px] shadow-md">
         <div id="parent-content">
             <br>
             <br>
@@ -86,9 +89,11 @@ Here are your order sir
 
         <div class="overlay" style="visibility:hidden"></div>
 
-        <div class="child">
+        <div class="border-[1px] shadow-lg h-[12rem] overflow-y-auto
+        child">
             {% for shipment in shipments %}
-            <div id="{{forloop.counter}}" class="courier-option">
+            <div id="{{forloop.counter}}" class="shadow-lg bg-white hover:bg-slate-200
+            courier-option">
                 <div id="courier-name">
                     {{shipment.courier_name}}
 

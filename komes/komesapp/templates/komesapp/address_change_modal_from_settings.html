@@ -7,25 +7,49 @@
 {% endblock %}
 
 {% block popup1 %}
-<h1>address change modal</h1>
 
-<!-- <a href="{% url 'createaddress' %}">Add</a> -->
-<!-- create address button -->
-<!-- <button id="create-address-button">Add address</button> -->
-<a href="{% url 'settingscreateaddress' %}">Add address</a>
+<div class="relative z-10">
+
+    <div class="fixed inset-0 bg-gray-500 opacity-50" aria-hidden="true"></div>
+
+    <div class="fixed inset-0  w-full z-10">
+        <div class="fixed flex min-h-full inset-0 items-end justify-center p-4 text-center sm:items-center sm:text-left sm:p-0">
+
+            <div class="flex flex-col relative bg-white rounded-lg shadow-xl px-4 py-2 pb-[2rem] sm:p-6 h-[70%] sm:h-fit sm:max-h-[90%] sm:w-full sm:max-w-lg">
+                
+                <h3 class="font-bold leading-text-gray-900 mb-2">
+                    Change address
+
+                </h3>
+
+                <div class="grow overflow-y-auto  border-t-[1px] border-b-[1px] border-slate-100">
+                    <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-2">
+                        <div class="my-3 ">
+    
+                            <a href="{% url 'settingscreateaddress' %}"  >
+                                <div class="border-[1px] border-slate-300 min-w-full shadow-sm rounded-md text-center py-1 hover:bg-slate-200">
+                                    Add address
+                                </div>
+                                
+                            </a>
+                        </div>
+
 
 <div id="create-address-modal-container"></div>
 
 <div id="delete-address-confirmation-container"></div>
 
-<ul>
+<ul class="flex flex-col gap-y-2">
     {% for addr in addresses %}
-            <div id="{{addr.id}}" class="address-option-container {% if addr.id == address.id %} highlight {% endif %}">
+            <div id="{{addr.id}}" class="border-[1px] border-slate-300 min-w-full shadow-md rounded-md text-left px-2 py-1 hover:transition
+            hover:scale-105
+            duration-300 
+            address-option-container {% if addr.id == address.id %} highlight {% endif %}">
                 <li>
                     {{addr.name}} <br>
                     {{addr.address}} <br>
-                    <a href="{% url 'settingsupdateaddress' addr.id%}">Update</a>
-                    <a href="{% url 'settingsdeleteaddress' addr.id%}" id="delete-address-button">Delete</a>
+                    <a href="{% url 'settingsupdateaddress' addr.id %}" class="hover:underline hover:text-blue-500">Update</a>
+                    <a href="{% url 'orderdeleteaddress' addr.id %}" id="delete-address-button" class="hover:underline hover:text-red-500">Delete</a>
 
                 </li>
                 
@@ -33,15 +57,39 @@
     {% endfor %}
 </ul>
 
-<form action="{% url 'chooselatestaddress' address.id %}" method="post" id="choose-address-form">
-    {% csrf_token %}
-    <input type="hidden" name="redirect_to" id="change-address-redirect-url" value="{% url 'settings' %}">
-    <input type="submit" value="Save">
-</form>
-
 <!-- close modal button -->
 <!-- <button id="change-address-modal-close-button">Close</button> -->
-<a href="{% url 'settings' %}">Close change modal</a>
+<!-- {{order}} -->
+                                
+                                <div class="py-3 sm:flex sm:flex-row-reverse">
+                                    <form action="{% url 'chooselatestaddress' address.id %}" method="post" id="choose-address-form" class="mb-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="redirect_to" id="change-address-redirect-url" value="{% url 'settings' %}">
+                                        <input type="submit" value="Save" class="inline-flex w-full justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-400 sm:ml-3 sm:w-auto">
+                                    </form>
+
+                                    <a href="{% url 'settings' %}" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-300 sm:mt-0 sm:w-auto">Cancel</a>
+
+
+                                </div>
+    
+                        </form>
+    
+                            <!-- close create address modal button -->
+                            <!-- <button id="create-address-modal-close-button">Close create address modal</button> -->
+    
+                        </div>
+    
+    
+                    </div>
+    
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 
 {% endblock %}
 
