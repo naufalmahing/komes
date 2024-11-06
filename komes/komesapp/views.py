@@ -195,7 +195,16 @@ class StoreDetailView(LoginRequiredMixin, View):
 
     """get detail view from a store where its user's or not"""
     def get(self, request, *args, **kwargs):
-        store = Store.objects.get(id=kwargs['store_id'])
+        user = User.objects.get(id=request.user.id)
+        store = user.store
+        
+        if not store:
+            store = Store.objects.get(id=kwargs['store_id'])
+            if store:
+                return HttpResponse('Access not permitted')
+            else:
+                return HttpResponse('Store not found')
+
         # store = Store.objects.filter(owner__id=request).first()
         return render(request, 'komesapp/storedetail.html', {
             'store': store
@@ -206,7 +215,24 @@ class UpdateStoreView(LoginRequiredMixin, View):
     redirect_field_name = "redirect_to"
 
     def get(self, request, *args, **kwargs):
+        # get user permission
+        user = User.objects.get(id=request.user.id)
+        store = user.store if user.store else None
         store = Store.objects.get(id=kwargs['store_id'])
+
+        if not store:
+            store = Store.objects.get(id=kwargs['store_id'])
+            if store:
+                return HttpResponse('Access not permitted')
+            else:
+                return HttpResponse('Store not found')
+            
+        # TODO: idk if i should use this
+        # if store:
+        #     if not user.has_perm('komesapp.change_store'):
+        #         return 'no permission'
+
+
         form = StoreForm({
             'name': store.name,
             'description': store.description
@@ -219,7 +245,16 @@ class UpdateStoreView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         print(request.POST)
         form = StoreForm(request.POST)
-        store = Store.objects.get(id=kwargs['store_id'])
+        user = User.objects.get(id=request.user.id)
+        store = user.store 
+
+        if not store:
+            store = Store.objects.get(id=kwargs['store_id'])
+            if store:
+                return HttpResponse('Access not permitted')
+            else:
+                return HttpResponse('Store not found')
+            
         if form.is_valid():
             store.name = form.cleaned_data.get('name')
             store.description = form.cleaned_data.get('description')
@@ -233,7 +268,16 @@ class UpdateStoreAddressView(LoginRequiredMixin, View):
     redirect_field_name = "redirect_to"
 
     def get(self, request, *args, **kwargs):
-        store = Store.objects.get(id=kwargs['store_id'])
+        user = User.objects.get(id=request.user.id)
+        store = user.store 
+        
+        if not store:
+            store = Store.objects.get(id=kwargs['store_id'])
+            if store:
+                return HttpResponse('Access not permitted')
+            else:
+                return HttpResponse('Store not found')
+            
         form = AddressForm(model_to_dict(store.address))
         return render(request, 'komesapp/update_store_address.html', {
             'address_form': form,
@@ -242,7 +286,17 @@ class UpdateStoreAddressView(LoginRequiredMixin, View):
     
     def post(self, request, *args, **kwargs):
         form = AddressForm(request.POST)
-        store = Store.objects.get(id=kwargs['store_id'])
+        
+        user = User.objects.get(id=request.user.id)
+        store = user.store 
+        
+        if not store:
+            store = Store.objects.get(id=kwargs['store_id'])
+            if store:
+                return HttpResponse('Access not permitted')
+            else:
+                return HttpResponse('Store not found')
+            
         if form.is_valid():
             store.address.name = form.cleaned_data.get('name')
             store.address.city = form.cleaned_data.get('city')
@@ -282,6 +336,7 @@ class AddProductView(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse('updatestore', kwargs={
                 'store_id': store.id
             }))
+        
         print(form.errors)
         return render(request, 'komesapp/add_store_product.html', {
             'msg': form.errors,
@@ -537,7 +592,7 @@ class LatestAddressView(LoginRequiredMixin, View):
 
         user = User.objects.get(id=request.user.id)
         latest_address  = user.latestaddress
-        latest_address.address = Address.objects.get(id=address_id)
+        latest_address.address = user.address_set.get(id=address_id)
         latest_address.save()
 
         # get latest order from user
@@ -576,10 +631,14 @@ class ChangeAddressModalView(LoginRequiredMixin, View):
 
     def post(self, request):
         user = User.objects.get(id=request.user.id)
-        user.latestaddress_set.address = Address.objects.get(request.JSON['address_id'])
-        user.save()
 
-        return HttpResponseRedirect(reverse('')) # this the one that needs dynamic return url
+        new_latestaddress = user.address_set.get(request.JSON['address_id'])
+        if new_latestaddress:
+            user.latestaddress.address = new_latestaddress
+            user.save()
+
+            return HttpResponseRedirect(reverse('')) # this the one that needs dynamic return url
+        return HttpResponse('Address isn\'t in your address list')
         
 class OrderChangeAddressModalView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
@@ -588,13 +647,16 @@ class OrderChangeAddressModalView(LoginRequiredMixin, View):
     def get(self, request):
         # get user
         user = User.objects.get(id=request.user.id)
-
+        # user.user_permissions.add(permissio)
+        addresses = user.address_set.all()
+        
         # print(user.order_set.last())
         # print(type(user.order_set.last()))
         # print(user.order_set.last().products)
         # print(user.order_set.all())
         return HttpResponse(loader.render_to_string('komesapp/address_change_modal_from_order.html', context={
-            'addresses': user.address_set.all(),
+            # 'addresses': user.address_set.all(),
+            'addresses': addresses,
             'address': user.latestaddress.address,
             'order': user.order_set.last(),
             'store': user.store
@@ -605,18 +667,29 @@ class OrderChangeAddressModalView(LoginRequiredMixin, View):
     
 
     def post(self, request):
-        user = User.objects.get(id=request.user.id)
-        user.latestaddress_set.address = Address.objects.get(request.JSON['address_id'])
-        user.save()
+        # user = User.objects.get(id=request.user.id)
+        # user.latestaddress_set.address = Address.objects.get(request.JSON['address_id'])
+        # user.save()
 
         # return HttpResponseRedirect(reverse('checkout', kwargs={
         #     'order_id': user.order_set.last().id
         # })) # this the one that needs dynamic return url
 
-        return render(request, 'komesapp/order.html', {
-            'address': user.latestaddress.address,
-            'order': user.order_set.last()
-        })
+        user = User.objects.get(id=request.user.id)
+        
+        # check if address is in the user addresses
+
+        new_latestaddress = user.address_set.filter(id=request.JSON['address_id']).first()
+        if new_latestaddress:
+            user.latestaddress_set.address = new_latestaddress
+            user.save()
+
+            return render(request, 'komesapp/order.html', {
+                'address': user.latestaddress.address,
+                'order': user.order_set.last()
+            })
+        return HttpResponse('Address isn\'t in your address list')
+    
     
 class SettingsChangeAddressModalView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
@@ -641,11 +714,27 @@ class SettingsChangeAddressModalView(LoginRequiredMixin, View):
     
 
     def post(self, request):
-        user = User.objects.get(id=request.user.id)
-        user.latestaddress_set.address = Address.objects.get(request.JSON['address_id'])
-        user.save()
 
-        return HttpResponseRedirect(reverse('settings')) # this the one that needs dynamic return url
+        # user = User.objects.get(id=request.user.id)
+        # user.latestaddress_set.address = Address.objects.get(request.JSON['address_id'])
+        # user.save()
+
+        # return HttpResponseRedirect(reverse('checkout', kwargs={
+        #     'order_id': user.order_set.last().id
+        # })) # this the one that needs dynamic return url
+
+        user = User.objects.get(id=request.user.id)
+        
+        # check if address is in the user addresses
+
+        new_latestaddress = user.address_set.filter(id=request.JSON['address_id']).first()
+        if new_latestaddress:
+            user.latestaddress_set.address = new_latestaddress
+            user.save()
+
+            return HttpResponseRedirect(reverse('settings')) # this the one that needs dynamic return url
+        return HttpResponse('Address isn\'t in your address list')
+
 
 """test view for rendering template with loader render"""
 def test_form(request):
@@ -847,12 +936,13 @@ class OrderDeleteAddressView(LoginRequiredMixin, View):
             }, request=request))
 
     def post(self, request, *args, **kwargs):
-        address = Address.objects.get(id=kwargs['address_id'])
         user = User.objects.get(id=request.user.id)
+        address = user.address_set.filter(id=kwargs['address_id']).first()
+
         if user.latestaddress.address.id == address.id:
             ids = [address.id for address in user.address_set.all()]
             ids.remove(user.latestaddress.address.id)
-            user.latestaddress.address = user.address_set.get(id=ids[0])
+            user.latestaddress.address = user.address_set.filter(id=ids[0]).first()
             user.latestaddress.save()
         messages.success(request, 'Delete address: ' + address.name)
         address.delete()
@@ -873,12 +963,13 @@ class SettingsDeleteAddressView(LoginRequiredMixin, View):
             }, request=request))
 
     def post(self, request, *args, **kwargs):
-        address = Address.objects.get(id=kwargs['address_id'])
         user = User.objects.get(id=request.user.id)
+        address = user.address_set.filter(id=kwargs['address_id']).first()
+
         if user.latestaddress.address.id == address.id:
             ids = [address.id for address in user.address_set.all()]
             ids.remove(user.latestaddress.address.id)
-            user.latestaddress.address = user.address_set.get(id=ids[0])
+            user.latestaddress.address = user.address_set.filter(id=ids[0]).first()
             user.latestaddress.save()
         messages.success(request, 'Delete address: ' + address.name)
         address.delete()
@@ -891,7 +982,7 @@ class OrderUpdateAddressView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.get(id=kwargs['address_id'])
+        address = user.address_set.filter(id=kwargs['address_id']).first()
         # address to dictionary
         address_dict = model_to_dict(address)
         form = AddressForm(address_dict)
@@ -906,7 +997,7 @@ class OrderUpdateAddressView(LoginRequiredMixin, View):
     
     def post(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.get(id=kwargs['address_id'])
+        address = user.address_set.filter(id=kwargs['address_id']).first()
 
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -927,7 +1018,7 @@ class SettingsUpdateAddressView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.get(id=kwargs['address_id'])
+        address = user.address_set.filter(id=kwargs['address_id']).first()
         # address to dictionary
         address_dict = model_to_dict(address)
         form = AddressForm(address_dict)
@@ -939,7 +1030,7 @@ class SettingsUpdateAddressView(LoginRequiredMixin, View):
     
     def post(self, request, *args, **kwargs):
         user = User.objects.get(id=request.user.id)
-        address = user.address_set.get(id=kwargs['address_id'])
+        address = user.address_set.filter(id=kwargs['address_id']).first()
 
         form = AddressForm(request.POST)
         if form.is_valid():

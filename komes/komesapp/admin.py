@@ -7,7 +7,10 @@ from .models import (
     OrderProduct,
     LatestAddress,
     Address,
+    User,
 )
+
+from django.contrib.auth.admin import UserAdmin
 
 class AddressInline(admin.TabularInline):
     model = Address
@@ -25,3 +28,4 @@ admin.site.register(Tag)
 admin.site.register(OrderProduct)
 admin.site.register(LatestAddress)
 admin.site.register(Address)
+# admin.site.register(User, UserAdmin)

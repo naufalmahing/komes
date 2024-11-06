@@ -1,9 +1,30 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.db.models import Manager
+from django.contrib.auth.models import AbstractUser, User
 
 from djmoney.models.fields import MoneyField
 
+class UserRelatedAddressManager(Manager):
+    def init(self, user_id):
+        super().__init__()
+        self.user_id = user_id
+
+    def get_queryset(self):
+        return super().get_queryset().filter(name='normal')
+
+    def get_user_query(self, username):
+        return super().get_queryset().filter(user__username=username)
+    
+
 class Address(models.Model):
+    # class Meta:
+    #     permissions = [
+    #         ('create_address', ''),
+    #         ('update_address', ''),
+    #         ('change_address', ''),
+    #         ('delete_address', ''),
+    #     ]
+
     name=models.CharField(max_length=300)
     city=models.CharField(max_length=100)
     subdistrict=models.CharField(max_length=150)
@@ -12,7 +33,10 @@ class Address(models.Model):
     zipcode=models.CharField(max_length=20)
 
     user=models.ForeignKey(User, on_delete=models.CASCADE)
-    
+
+    objects = models.Manager()
+    user_related_objects = UserRelatedAddressManager()
+
     def __str__(self) -> str:
         return self.name
 
