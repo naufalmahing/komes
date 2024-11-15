@@ -1,6 +1,6 @@
 {% if messages %}
 {% for message in messages %}
-    <div class="alert {% if alert.success %} bg-green-300 {% endif %} {% if alert.error %} bg-red-300 {% endif %}" id="msg" role="alert">
+    <div class="alert text-center py-2 px-1 text-slate-800 opacity-90 {% if 'success' in message.tags %} bg-green-300 {% endif %} {% if 'error' in message.tags %} bg-red-300 {% endif %}" id="msg" role="alert">
         {{message}}
     </div>
 {% endfor %}
