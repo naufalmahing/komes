@@ -1,42 +1,58 @@
 {% extends 'komesapp/base.html'%}
 
+{% block title %}
+Komes Order
+{% endblock %}
 
+{% block hero %}
+Order
+{% endblock %}
 {% block content %}
-
-Here are your order sir
-
-{% if user.is_authenticated %}
-{{ user.username }}
-{% endif %}
 
 <div>
     {% if orderproducts %}
-    <a href="{% url 'clearorder' %}">Clear order</a>
-    {% else %}
-    Order empty
-    {% endif %}
-    <ul>
+    <a href="{% url 'clearorder' %}">
+        <div class="px-4 py-2 bg-red-100 shadow-sm rounded w-max hover:bg-red-200 duration-100">
+            Clear order
+        </div>
+    </a>
+
+    <ul class="flex flex-col gap-3 my-2">
         {% for orderproduct in orderproducts %}
         <li>
-            <img src="{{orderproduct.product.photo.url}}" alt="" height="200" width="150">
-            <br>
-            {{orderproduct.product.name}}
-            <br>
-            {{orderproduct.product.price}}
-            <br>
-            <p>Quantity: {{orderproduct.count}}</p>
-            <!-- delete product -->
-            <form action="{% url 'orderdeleteproduct' orderproduct.product.id %}" method="post">{% csrf_token %}
-                <input type="submit" value="Delete">
-            </form>
+
+            <div class="shadow-md border w-min border-1 p-2 cursor-default hover:bg-slate-200 duration-100">
+
+                <div class="bg-slate-100 w-[150px] h-[150px] flex items-center">
+                    <img src="{{orderproduct.product.photo.url}}" alt="Product image" height="200" width="150">
+    
+                </div>
+                {{orderproduct.product.name}}
+                <br>
+                {{orderproduct.product.price}}
+                <br>
+                <p>Quantity: {{orderproduct.count}}</p>
+                <!-- delete product -->
+                <form action="{% url 'orderdeleteproduct' orderproduct.product.id %}" method="post" class="mb-0">{% csrf_token %}
+                    <input type="submit" value="Delete" class="underline cursor-pointer">
+                </form>
+            </div>
         </li>
         {% endfor %}
     </ul>
 
     {% if orderproducts %}
-    <a href="{% url 'checkout' orderproducts.first.order.id %}">Checkout</a>
+    <a href="{% url 'checkout' orderproducts.first.order.id %}">
+        <div class="px-4 py-2 bg-slate-100 shadow-sm rounded w-min hover:bg-slate-200 duration-100">
+            Checkout
+
+        </div>
+    </a>
     {% endif %}
     
+    {% else %}
+    Order empty
+    {% endif %}
 </div>
 
 {% endblock %}

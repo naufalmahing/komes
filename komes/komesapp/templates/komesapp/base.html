@@ -22,7 +22,11 @@
 
     <div class="bg-blue-500 pt-5">
         <div class="flex justify-between items-center">
-            <h3 class="font-bold text-5xl text-white ml-3">Komes</h3>
+            <h3 class="font-bold text-5xl text-white ml-3">
+                {% block hero %}
+                Komes
+                {% endblock %}
+            </h3>
     
             <div class="mr-3">
                 <p>{{ user.username }}</p>
