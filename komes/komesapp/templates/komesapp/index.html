@@ -1,33 +1,31 @@
 {% extends 'komesapp/base.html' %}
 
+{% load tailwind_filters %}
+
 {% block content %}
-
-Here are your products sir
-
-{% if user.is_authenticated %}
-{{ user.username }}
-{% endif %}
 
 <!-- search bar (products) 
 display a list of products
 -->
 
-{% for product in products %}
-<a href="{% url 'storedetail' product.store.id %}">
-    <div>
-        <img src="{{product.photo.url}}" alt="" height="200" width="150">
-        <br>
-        {{product.name}}
-        <br>
-        {{product.price.amount}}
-        <form action="{% url 'addorder' product.id %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="redirect_to" value="{{request.path}}">
-            <input type="submit" value="Add to Order">
-        </form>
-    </div>
-</a>
-
-{% endfor %}
+<div class="flex items-center sm:flex-row">
+    {% for product in products %}
+    <a href="{% url 'storedetail' product.store.id %}">
+        <div>
+            <img src="{{product.photo.url}}" alt="" height="200" width="150">
+            <br>
+            {{product.name}}
+            <br>
+            {{product.price.amount}}
+            <form action="{% url 'addorder' product.id %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="redirect_to" value="{{request.path}}">
+                <input type="submit" value="Add to Order">
+            </form>
+        </div>
+    </a>
+    
+    {% endfor %}
+</div>
 
 {% endblock %}

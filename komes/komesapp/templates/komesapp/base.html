@@ -13,30 +13,58 @@
     {% endblock %}
 </head>
 <body>
-    {% include 'komesapp/messages.html' %}
+    <div class="sticky">
+        {% include 'komesapp/messages.html' %}
+    </div>
     
     {% if user.is_authenticated %}
-    <p>{{ user.username }}</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
+    <!-- header  -->
 
-    <form method="post" action="{% url 'logout' %}" >
-        {% csrf_token %}
-        <a href="#" class="hover:underline">
-            <input type="submit" value="logout">
-        </a>
-    </form>
+    <div class="bg-blue-500 pt-5">
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-5xl text-white ml-3">Komes</h3>
+    
+            <div class="mr-3">
+                <p>{{ user.username }}</p>
 
-    <form action="">
-        <input type="submit" value="create">
-    </form>
+                <form method="post" action="{% url 'logout' %}" >
+                    {% csrf_token %}
+                    <a href="#" class="hover:underline">
+                        <input type="submit" value="logout" class="">
+                    </a>
+                </form>
+            </div>
+            
+        </div>
 
-    <!-- header -->
-    <a href="{% url 'index' %}">Products</a>
-    <a href="{% url 'stores' %}">Stores</a>
-    <a href="{% url 'order' %}">Orders</a>
-    <a href="{% url 'settings' %}">Settings</a>
+        <!-- navigation -->
+        <div class="grid grid-flow-col mt-5 justify-stretch">
+
+            <a href="{% url 'index' %}" class="font-semibold text-white text-lg hover:underline ">
+                <div class="hover:bg-blue-700 py-2 px-4 text-center">
+                    Products
+                </div>
+            </a>
+            <a href="{% url 'stores' %}" class="font-semibold text-white text-lg hover:underline">
+                <div class="hover:bg-blue-700 py-2 px-4 text-center">
+                    Stores
+                </div>
+            </a>
+            <a href="{% url 'order' %}" class="font-semibold text-white text-lg hover:underline">
+                <div class="hover:bg-blue-700 py-2 px-4 text-center">
+                    Order
+                </div>
+            </a>
+            <a href="{% url 'settings' %}" class="font-semibold text-white text-lg hover:underline">
+                <div class="hover:bg-blue-700 py-2 px-4 text-center">
+                    Settings
+                </div>
+            </a>
+
+        </div>
+        
+    </div>
+
     <div>
         <div>
             {% block popup1 %}
@@ -45,9 +73,16 @@
             {% block popup2 %}
             {% endblock %}
         </div>
-        {% block content %}
-        {% endblock content %}
+        <div class="px-4 py-2">
+            {% block content %}
+            {% endblock content %}
+        </div>
     </div>
+
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+
 
     <script>
         const msgElement = document.getElementById('msg')

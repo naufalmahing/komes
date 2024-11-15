@@ -10,29 +10,31 @@ Here are your order sir
 {% endif %}
 
 <div>
-    {% if order.products.all %}
+    {% if orderproducts %}
     <a href="{% url 'clearorder' %}">Clear order</a>
     {% else %}
     Order empty
     {% endif %}
     <ul>
-        {% for product in order.products.all %}
+        {% for orderproduct in orderproducts %}
         <li>
-            <img src="{{product.photo.url}}" alt="" height="200" width="150">
+            <img src="{{orderproduct.product.photo.url}}" alt="" height="200" width="150">
             <br>
-            {{product.name}}
+            {{orderproduct.product.name}}
             <br>
-            {{product.price}}
+            {{orderproduct.product.price}}
+            <br>
+            <p>Quantity: {{orderproduct.count}}</p>
             <!-- delete product -->
-            <form action="{% url 'orderdeleteproduct' product.id %}" method="post">{% csrf_token %}
+            <form action="{% url 'orderdeleteproduct' orderproduct.product.id %}" method="post">{% csrf_token %}
                 <input type="submit" value="Delete">
             </form>
         </li>
         {% endfor %}
     </ul>
 
-    {% if order.products.all %}
-    <a href="{% url 'checkout' order.id %}">Checkout</a>
+    {% if orderproducts %}
+    <a href="{% url 'checkout' orderproducts.first.order.id %}">Checkout</a>
     {% endif %}
     
 </div>

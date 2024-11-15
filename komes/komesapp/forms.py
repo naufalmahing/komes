@@ -10,9 +10,16 @@ from djmoney.forms.fields import MoneyField
 
 import requests
 
+from .models import Store
+
 class StoreForm(forms.Form):
     name = forms.CharField(label='Store name', max_length=100)
     description = forms.CharField(label='Store description', widget=forms.Textarea(), required=False)
+
+    # def clean(self):
+    #     name = self.cleaned_data.get('name')
+    #     description = self.cleaned_data.get('description')
+    #     Store.objects.get_or_create()
 
 class ProductForm(forms.Form):
     name = forms.CharField(label='Product name', max_length=100)

@@ -70,9 +70,11 @@ class OrderView(LoginRequiredMixin, View):
 
     def get(self, request):
         order = Order.objects.filter(user__id=request.user.id).last()
+        orderproducts = OrderProduct.objects.filter(order__id=order.id)
         
         return render(request, 'komesapp/order.html', {
-            'order': order
+            'orderproducts': orderproducts,
+            'order': orderproducts.first().order
         })
     
     def post(self, request, *args, **kwargs):
@@ -83,9 +85,16 @@ class OrderView(LoginRequiredMixin, View):
             order = Order(user=User.objects.get(id=request.user.id))
             order.save()
         
-        OrderProduct(product=product, order=order).save()
+        # check if there's an object with the same order and product from orderproduct 
+        orderproduct = OrderProduct.objects.filter(product__id=product.id, order__id=order.id).first()
+        if not orderproduct:
+            orderproduct = OrderProduct(product=product, order=order, count=0)    
+        
+        orderproduct.count += 1
+        orderproduct.save()
+
         messages.success(request, 'Product added to order')
-        if request.POST['redirect_to']:
+        if 'redirect_to' in request.POST:
             redirect_to = request.POST['redirect_to']
             return HttpResponseRedirect(redirect_to)
 

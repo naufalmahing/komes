@@ -1,6 +1,6 @@
 {% if messages %}
 {% for message in messages %}
-    <div class="alert" id="msg" role="alert">
+    <div class="alert {% if alert.success %} bg-green-300 {% endif %} {% if alert.error %} bg-red-300 {% endif %}" id="msg" role="alert">
         {{message}}
     </div>
 {% endfor %}
