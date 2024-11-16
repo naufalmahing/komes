@@ -57,7 +57,7 @@ Here are your order sir
 
     
     <!-- <button id="change-address-button">Change Address</button> -->
-    <a href="{% url 'orderaddress' %}" class="hover:underline">Change address</a>
+    <a href="{% url 'orderaddress' %}" class="underline">Change address</a>
     {% else %}
     <a href="{% url 'ordercreateaddress' %}">Create address</a>
     {% endif %}
@@ -89,7 +89,7 @@ Here are your order sir
 
         <div class="overlay" style="visibility:hidden"></div>
 
-        <div class="border-[1px] shadow-lg h-[12rem] overflow-y-auto
+        <div class="border-[1px] shadow-lg h-[12rem] overflow-y-auto mb-2
         child">
             {% for shipment in shipments %}
             <div id="{{forloop.counter}}" class="shadow-lg bg-white hover:bg-slate-200
@@ -138,7 +138,7 @@ Here are your order sir
     <input type="hidden" name="courier-name">
     <input type="hidden" name="courier-type">
     <input type="hidden" name="delivery-type">
-    <input type="submit" value="Pay">
+    <input type="submit" value="Pay" class="px-4 py-2 bg-slate-100 shadow-sm rounded w-min hover:bg-slate-200 duration-100">
 </form>
 
 <!-- <input type="hidden" id="change-address-url" value="{% url 'address' %}"> -->

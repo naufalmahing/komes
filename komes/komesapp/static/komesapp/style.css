@@ -6,7 +6,7 @@
     position: relative; /* This makes the child position relative to the parent */
     width: 300px;
     height: 100px;
-    background-color: lightblue;
+    background-color: white;
     border: 1px solid #000;
     margin-top: 50px;
 }
@@ -33,7 +33,7 @@ div:blur {
 }
 
 .overlay {
-    background-color: aliceblue;
+    background-color: white;
     position: absolute;
     top: 0;
     left: 0;

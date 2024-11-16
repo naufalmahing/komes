@@ -50,7 +50,7 @@ urlpatterns = [
     path('latest-address/update/<int:address_id>/', views.LatestAddressView.as_view(), name='chooselatestaddress'),
     
     path('payment/success/', views.SuccessPaymentView.as_view(), name='paymentsuccess'),
-    path('payment/error', views.ErrorPaymentView.as_view(), name='paymenterror'),
+    path('payment/error/', views.ErrorPaymentView.as_view(), name='paymenterror'),
     path('payment/unfinished/', views.UnfinishedPaymentView.as_view(), name='paymentunfinished'),
 
     path('api-test/', views.api_test, name='apitest'),

@@ -10,13 +10,7 @@ data-client-key="{{ client_key }}"></script>
 
 {% block content %}
 
-Here are your order sir
-
-{% if user.is_authenticated %}
-{{ user.username }}
-{% endif %}
-
-<div>
+<div class="flex justify-center">
 
     <!-- total payment -->
     <!-- <table>
@@ -71,6 +65,7 @@ Here are your order sir
         window.snap.embed('{{snap_token}}', {
             embedId: 'snap-container'
         });
+        // window.snap.pay('{{snap_token}}');
     })
 </script>
 {% endblock %}

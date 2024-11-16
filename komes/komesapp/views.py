@@ -74,7 +74,7 @@ class OrderView(LoginRequiredMixin, View):
         
         return render(request, 'komesapp/order.html', {
             'orderproducts': orderproducts,
-            'order': orderproducts.first().order
+            'order': order
         })
     
     def post(self, request, *args, **kwargs):
@@ -1263,9 +1263,9 @@ class CheckoutView(LoginRequiredMixin, View):
                 'order_id': kwargs['order_id']
             }))
         
-        return HttpResponseRedirect(reverse('buy'), kwargs={
+        return HttpResponseRedirect(reverse('buy', kwargs={
             'order_id': kwargs['order_id']
-        })
+        }))
     
 class SuccessPaymentView(LoginRequiredMixin, View):
     login_url = '/accounts/login'
