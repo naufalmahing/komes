@@ -894,9 +894,18 @@ class SettingsCreateAddressModalView(LoginRequiredMixin, View):
         #     'address_form': form
         # })
         user = User.objects.get(id=request.user.id)
+        has_store = hasattr(user, 'store')
+
+        if not hasattr(user, 'latestaddress'):
+            return render(request, 'komesapp/address_input_modal_first_time.html', {
+                'address_form': form,
+                'has_store': has_store,
+            })
+        address = user.latestaddress.address
+
         return HttpResponse(loader.render_to_string('komesapp/address_input_modal_from_settings.html', context={
             'address_form': form,
-            'address': user.latestaddress.address
+            'address': address
         }, request=request))
 
     
@@ -916,6 +925,9 @@ class SettingsCreateAddressModalView(LoginRequiredMixin, View):
             address = Address(name=name, city=city, subdistrict=subdistrict, ward=ward, address=address, zipcode=zipcode, user=user)
             address.save()
             
+            if not hasattr(user, 'latestaddress'):
+                LatestAddress(user.id, address.id).save()
+
             user.latestaddress.address = address
             user.latestaddress.save()
 
@@ -1107,6 +1119,11 @@ class CheckoutView(LoginRequiredMixin, View):
         # get position from address provided
         user = User.objects.get(id=request.user.id)
         order = user.order_set.last()
+            
+        if not hasattr(user, 'latestaddress'):
+            messages.warning(request, 'Set an address before checkout')
+            return HttpResponseRedirect(reverse('settingscreateaddress'))
+        
         address = user.latestaddress.address
         store_address = user.order_set.last().products.first().store.address
 

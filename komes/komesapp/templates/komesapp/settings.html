@@ -6,19 +6,19 @@
 Komesapp User Settings
 {% endblock %}
 
+
+
 {% block header %}
 <link rel="stylesheet" href="{% static 'komesapp/style.css' %}">
+{% endblock %}
+
+{% block hero %}
+Settings
 {% endblock %}
 
 {% block content %}
 <!-- base url for redirecting url -->
 <input type="hidden" id="base-url" value="{{request.path}}">
-
-Here are your settings sir
-
-{% if user.is_authenticated %}
-{{ user.username }}
-{% endif %}
 
 <div>
 
@@ -39,7 +39,8 @@ Here are your settings sir
           <!-- <button id="change-address-button">Change Address</button> -->
           <a href="{% url 'settingsaddress' %}">Change address</a>
         {% else %}
-        There isn't an address
+        <p class="text-md text-slate-500">There isn't an address</p>
+        <a href="{% url 'settingscreateaddress' %}" class="underline">Create address</a>
         {% endif %}
     </div>
 
